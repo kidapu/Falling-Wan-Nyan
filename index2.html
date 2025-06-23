@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>動物画像一覧</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+        }
+        .container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .image-item {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 10px;
+            text-align: center;
+        }
+        .image-item img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 4px;
+        }
+        .image-name {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #333;
+            word-break: break-word;
+        }
+        .image-size {
+            margin-top: 5px;
+            font-size: 11px;
+            color: #666;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+    </style>
+</head>
+<body>
+    <script>
+        function updateImageSize(img) {
+            const sizeDiv = img.parentElement.querySelector('.image-size');
+            if (sizeDiv && img.naturalWidth && img.naturalHeight) {
+                sizeDiv.textContent = `${img.naturalWidth} × ${img.naturalHeight}px`;
+            }
+        }
+        
+        function loadImageSizes() {
+            const images = document.querySelectorAll('.image-item img');
+            images.forEach(img => {
+                if (img.complete && img.naturalWidth !== 0) {
+                    updateImageSize(img);
+                } else {
+                    img.onload = function() {
+                        updateImageSize(this);
+                    };
+                    img.onerror = function() {
+                        const sizeDiv = this.parentElement.querySelector('.image-size');
+                        if (sizeDiv) {
+                            sizeDiv.textContent = 'エラー';
+                        }
+                    };
+                }
+            });
+        }
+        
+        document.addEventListener('DOMContentLoaded', loadImageSizes);
+    </script>
+    <h1>動物画像一覧</h1>
+    <div class="container">
+        <div class="image-item">
+            <img src="illust/baby-chiken-01.png" alt="baby-chiken-01">
+            <div class="image-name">baby-chiken-01</div>
+            <div class="image-size">読み込み中...</div>
+        </div>
+        <div class="image-item">
+            <img src="illust/baby-chiken-02.png" alt="baby-chiken-02">
+            <div class="image-name">baby-chiken-02</div>
+            <div class="image-size">読み込み中...</div>
+        </div>
+        <div class="image-item">
+            <img src="illust/bird-01.png" alt="bird-01">
+            <div class="image-name">bird-01</div>
+            <div class="image-size">読み込み中...</div>
+        </div>
+        <div class="image-item">
+            <img src="illust/butterfly-01.png" alt="butterfly-01">
+            <div class="image-name">butterfly-01</div>
+            <div class="image-size">読み込み中...</div>
+        </div>
+        <div class="image-item">
+            <img src="illust/butterfly-02.png" alt="butterfly-02">
+            <div class="image-name">butterfly-02</div>
+            <div class="image-size">読み込み中...</div>
+        </div>
+        <div class="image-item">
+            <img src="illust/cat-01.png" alt="cat-01">
+            <div class="image-name">cat-01</div>
+            <div class="image-size">読み込み中...</div>
+        </div>
+        <div class="image-item">
+            <img src="illust/cat-02.png" alt="cat-02">
+            <div class="image-name">cat-02</div>
+            <div class="image-size">読み込み中...</div>
+        </div>
+        <div class="image-item">
+            <img src="illust/cat-03.png" alt="cat-03">
+            <div class="image-name">cat-03</div>
+            <div class="image-size">読み込み中...</div>
+        </div>
+        <div class="image-item">
+            <img src="illust/cat-04.png" alt="cat-04">
+            <div class="image-name">cat-04</div>
+            <div class="image-size">読み込み中...</div>
+        </div>
+        <div class="image-item">
+            <img src="illust/chiken-01.png" alt="chiken-01">
+            <div class="image-name">chiken-01</div>
+            <div class="image-size">読み込み中...</div>
+        </div>
+        <div class="image-item">
+            <img src="illust/cow-01.png" alt="cow-01">
+            <div class="image-name">cow-01</div>
+            <div class="image-size">読み込み中...</div>
+        </div>
+        <div class="image-item">
+            <img src="illust/dog-01.png" alt="dog-01">
+            <div class="image-name">dog-01</div>
+            <div class="image-size">読み込み中...</div>
+        </div>
+        <div class="image-item">
+            <img src="illust/dog-02.png" alt="dog-02">
+            <div class="image-name">dog-02</div>
+            <div class="image-size">読み込み中...</div>
+        </div>
+        <div class="image-item">
+            <img src="illust/elephant-01.png" alt="elephant-01">
+            <div class="image-name">elephant-01</div>
+            <div class="image-size">読み込み中...</div>
+        </div>
+        <div class="image-item">
+            <img src="illust/fish-01.png" alt="fish-01">
+            <div class="image-name">fish-01</div>
+            <div class="image-size">読み込み中...</div>
+        </div>
+        <div class="image-item">
+            <img src="illust/fish-02.png" alt="fish-02">
+            <div class="image-name">fish-02</div>
+            <div class="image-size">読み込み中...</div>
+        </div>
+        <div class="image-item">
+            <img src="illust/fox-01.png" alt="fox-01">
+            <div class="image-name">fox-01</div>
+            <div class="image-size">読み込み中...</div>
+        </div>
+        <div class="image-item">
+            <img src="illust/giraffe-01.png" alt="giraffe-01">
+            <div class="image-name">giraffe-01</div>
+            <div class="image-size">読み込み中...</div>
+        </div>
+        <div class="image-item">
+            <img src="illust/gorilla-01.png" alt="gorilla-01">
+            <div class="image-name">gorilla-01</div>
+            <div class="image-size">読み込み中...</div>
+        </div>
+        <div class="image-item">
+            <img src="illust/lion-01.png" alt="lion-01">
+            <div class="image-name">lion-01</div>
+            <div class="image-size">読み込み中...</div>
+        </div>
+        <div class="image-item">
+            <img src="illust/monkey-01.png" alt="monkey-01">
+            <div class="image-name">monkey-01</div>
+            <div class="image-size">読み込み中...</div>
+        </div>
+        <div class="image-item">
+            <img src="illust/monkey-02.png" alt="monkey-02">
+            <div class="image-name">monkey-02</div>
+            <div class="image-size">読み込み中...</div>
+        </div>
+        <div class="image-item">
+            <img src="illust/pig-02.png" alt="pig-02">
+            <div class="image-name">pig-02</div>
+            <div class="image-size">読み込み中...</div>
+        </div>
+        <div class="image-item">
+            <img src="illust/turtle-01.png" alt="turtle-01">
+            <div class="image-name">turtle-01</div>
+            <div class="image-size">読み込み中...</div>
+        </div>
+    </div>
+</body>
+</html>
