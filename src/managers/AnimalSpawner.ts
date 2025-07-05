@@ -1,19 +1,22 @@
 import { ViewportManager } from './ViewportManager'
 import { SoundManager } from './SoundManager'
+import { GrowthManager } from './GrowthManager'
 
 export class AnimalSpawner {
     private scene: Phaser.Scene
     private viewportManager: ViewportManager
     private soundManager: SoundManager
+    private growthManager: GrowthManager
     private animalSprites: Phaser.Physics.Matter.Sprite[] = []
     private animalKeys: string[] = []
     private spawnTimer: Phaser.Time.TimerEvent | null = null
     private lastSpawnedAnimal: string | null = null
 
-    constructor(scene: Phaser.Scene, viewportManager: ViewportManager, soundManager: SoundManager) {
+    constructor(scene: Phaser.Scene, viewportManager: ViewportManager, soundManager: SoundManager, growthManager: GrowthManager) {
         this.scene = scene
         this.viewportManager = viewportManager
         this.soundManager = soundManager
+        this.growthManager = growthManager
     }
 
     setAnimalKeys(keys: string[]): void {
@@ -91,6 +94,12 @@ export class AnimalSpawner {
         animal.setVelocity(0, 0)
         animal.setAngularVelocity(Phaser.Math.FloatBetween(-0.01, 0.01))
 
+        // Initialize growth state
+        this.growthManager.initializeGrowthState(animal, scale)
+        
+        // Store animal key for sound effects
+        animal.setData('animalKey', animalKey)
+
         animal.setInteractive()
         
         animal.on('pointerdown', () => {
@@ -101,27 +110,21 @@ export class AnimalSpawner {
         })
     }
 
-    private handleAnimalClick(animal: Phaser.Physics.Matter.Sprite, animalKey: string): void {
-        this.soundManager.playAnimalSound(animalKey)
-        this.showClickEffect(animal)
+    private async handleAnimalClick(animal: Phaser.Physics.Matter.Sprite, animalKey: string): Promise<void> {
+        if (!this.growthManager.canGrow(animal)) {
+            return
+        }
+
+        // Play sound with pitch based on growth level
+        const pitchMultiplier = this.growthManager.getSoundPitchMultiplier(animal)
+        this.soundManager.playAnimalSoundWithPitch(animalKey, pitchMultiplier)
+        
+        // Grow the animal
+        await this.growthManager.growAnimal(animal)
+        
+        // Growth feedback removed
     }
 
-    private showClickEffect(sprite: Phaser.Physics.Matter.Sprite): void {
-        const originalScale = sprite.scaleX
-        const enlargeScale = originalScale * 1.38
-        
-        this.scene.tweens.add({
-            targets: sprite,
-            scaleX: enlargeScale,
-            scaleY: enlargeScale,
-            duration: 100,
-            ease: 'Power2.easeOut',
-            yoyo: true,
-            onComplete: () => {
-                sprite.setScale(originalScale)
-            }
-        })
-    }
 
     removeAnimalWithAnimation(animal: Phaser.Physics.Matter.Sprite): void {
         if (animal.getData('removing')) {
