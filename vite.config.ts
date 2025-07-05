@@ -18,5 +18,8 @@ export default defineConfig({
     }
   },
   publicDir: 'public',
-  assetsInclude: ['**/*.png', '**/*.wav', '**/*.json']
+  assetsInclude: ['**/*.png', '**/*.wav', '**/*.json'],
+  esbuild: {
+    target: 'es2020'
+  }
 })

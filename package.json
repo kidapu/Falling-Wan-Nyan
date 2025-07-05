@@ -2,6 +2,7 @@
   "name": "marusankaku-falling-animals",
   "version": "1.0.0",
   "description": "Phaser 3 + Matter.js falling animals game",
+  "type": "module",
   "main": "index.html",
   "scripts": {
     "dev": "vite",
