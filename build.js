@@ -88,6 +88,12 @@ if (fs.existsSync('voice')) {
     console.log('✅ Copied voice/ directory');
 }
 
+// dataディレクトリ
+if (fs.existsSync('data')) {
+    fs.cpSync('data', 'dist/data', { recursive: true });
+    console.log('✅ Copied data/ directory');
+}
+
 // サイズ統計を表示
 function getDirectorySize(dirPath) {
     let totalSize = 0;

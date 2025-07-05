@@ -8,60 +8,20 @@ class GameScene extends Phaser.Scene {
         this.gameHeight = 0;
         this.lastSpawnedAnimal = null;
         
-        // 画像名→音声名のマッピングテーブル
-        this.audioMap = {
-            'baby-chiken-01': 'baby-chiken',
-            'baby-chiken-02': 'baby-chiken',
-            'bird-01': 'bird',
-            'butterfly-01': 'butterfly',
-            'butterfly-02': 'butterfly',
-            'cat-01': 'cat',
-            'cat-02': 'cat',
-            'cat-03': 'cat',
-            'cat-04': 'cat',
-            'chiken-01': 'chiken',
-            'cow-01': 'cow',
-            'dog-01': 'dog',
-            'dog-02': 'dog',
-            'elephant-01': 'elephant',
-            'fish-01': 'fish', // 音声ファイルが存在しない場合はエラーハンドリング
-            'fish-02': 'fish', // 音声ファイルが存在しない場合はエラーハンドリング
-            'fox-01': 'fox',
-            'giraffe-01': 'giraffe',
-            'gorilla-01': 'gorilla',
-            'lion-01': 'lion',
-            'monkey-01': 'monkey',
-            'monkey-02': 'monkey',
-            'pig-02': 'pig',
-            'turtle-01': 'turtle'
-        };
+        // カテゴリデータ（JSONから読み込み）
+        this.categoryData = null;
+        this.audioMap = {};
+        this.assetPaths = {};
+        this.fileExtensions = {};
     }
 
     preload() {
-        // 動物画像をプリロード
-        const animalImages = [
-            'baby-chiken-01', 'baby-chiken-02', 'bird-01', 'butterfly-01', 'butterfly-02',
-            'cat-01', 'cat-02', 'cat-03', 'cat-04', 'chiken-01',
-            'cow-01', 'dog-01', 'dog-02', 'elephant-01',
-            'fish-01', 'fish-02', 'fox-01', 'giraffe-01', 'gorilla-01',
-            'lion-01', 'monkey-01', 'monkey-02', 'pig-02', 'turtle-01'
-        ];
-
-        // 各画像をロード
-        animalImages.forEach(imageName => {
-            this.load.image(imageName, `illust/${imageName}.png`);
-            this.animalKeys.push(imageName);
-        });
-
-        // 音声ファイルをプリロード
-        const audioFiles = [
-            'baby-chiken', 'bird', 'butterfly', 'cat', 'chiken',
-            'cow', 'dog', 'elephant', 'fish', 'fox', 'giraffe',
-            'gorilla', 'lion', 'monkey', 'pig', 'turtle'
-        ];
+        // JSONデータをロード
+        this.load.json('animals', 'data/animals.json');
         
-        audioFiles.forEach(audioName => {
-            this.load.audio(audioName, `voice/${audioName}.wav`);
+        // JSONロード完了後に画像と音声をロード
+        this.load.on('filecomplete-json-animals', () => {
+            this.loadCategoryAssets();
         });
 
         // ロード進行状況を表示
@@ -71,31 +31,118 @@ class GameScene extends Phaser.Scene {
 
         // ロードエラーを監視
         this.load.on('loaderror', (file) => {
-            console.warn(`❌ Failed to load image: ${file.key} (${file.src})`);
+            console.warn(`❌ Failed to load: ${file.key} (${file.src})`);
         });
 
         // ロード完了時に各画像と音声の状態をチェック
         this.load.on('complete', () => {
-            console.log('✅ All loading attempts completed. Checking assets...');
+            this.validateAssets();
+        });
+    }
+    
+    loadCategoryAssets() {
+        try {
+            // JSONデータを取得
+            this.categoryData = this.cache.json.get('animals');
             
-            // 画像のチェック
-            animalImages.forEach(imageName => {
-                const texture = this.textures.get(imageName);
-                if (!texture || texture.key === '__MISSING') {
-                    console.warn(`❌ Missing texture: ${imageName}.png`);
-                } else {
-                    console.log(`✅ Loaded texture: ${imageName}.png`);
-                }
+            if (!this.categoryData) {
+                console.error('❌ Failed to load category data');
+                this.useFallbackData();
+                return;
+            }
+            
+            console.log(`✅ Loaded category: ${this.categoryData.displayName}`);
+            
+            // データを設定
+            this.audioMap = this.categoryData.audioMap || {};
+            this.assetPaths = this.categoryData.assetPaths || {};
+            this.fileExtensions = this.categoryData.fileExtensions || {};
+            
+            // 画像をロード
+            const imagePath = this.assetPaths.images || 'illust/';
+            const imageExt = this.fileExtensions.images || '.png';
+            
+            this.categoryData.images.forEach(imageName => {
+                this.load.image(imageName, `${imagePath}${imageName}${imageExt}`);
+                this.animalKeys.push(imageName);
             });
             
-            // 音声のチェック
-            audioFiles.forEach(audioName => {
-                if (this.cache.audio.exists(audioName)) {
-                    console.log(`✅ Loaded audio: ${audioName}.wav`);
-                } else {
-                    console.warn(`❌ Missing audio: ${audioName}.wav`);
-                }
+            // 音声をロード
+            const soundPath = this.assetPaths.sounds || 'voice/';
+            const soundExt = this.fileExtensions.sounds || '.wav';
+            
+            this.categoryData.sounds.forEach(soundName => {
+                this.load.audio(soundName, `${soundPath}${soundName}${soundExt}`);
             });
+            
+            // 新しいアセットのロードを開始
+            this.load.start();
+            
+        } catch (error) {
+            console.error('❌ Error loading category assets:', error);
+            this.useFallbackData();
+        }
+    }
+    
+    useFallbackData() {
+        console.warn('🔄 Using fallback data due to JSON load failure');
+        
+        // フォールバック用のハードコーディングデータ
+        this.categoryData = {
+            category: 'animals',
+            displayName: '動物（フォールバック）',
+            images: ['cat-01', 'dog-01', 'elephant-01'],
+            sounds: ['cat', 'dog', 'elephant']
+        };
+        
+        this.audioMap = {
+            'cat-01': 'cat',
+            'dog-01': 'dog',
+            'elephant-01': 'elephant'
+        };
+        
+        this.assetPaths = { images: 'illust/', sounds: 'voice/' };
+        this.fileExtensions = { images: '.png', sounds: '.wav' };
+        
+        // フォールバック画像をロード
+        this.categoryData.images.forEach(imageName => {
+            this.load.image(imageName, `illust/${imageName}.png`);
+            this.animalKeys.push(imageName);
+        });
+        
+        // フォールバック音声をロード
+        this.categoryData.sounds.forEach(soundName => {
+            this.load.audio(soundName, `voice/${soundName}.wav`);
+        });
+        
+        this.load.start();
+    }
+    
+    validateAssets() {
+        if (!this.categoryData) {
+            console.error('❌ No category data available');
+            return;
+        }
+        
+        console.log('✅ All loading attempts completed. Checking assets...');
+        
+        // 画像のチェック
+        this.categoryData.images.forEach(imageName => {
+            const texture = this.textures.get(imageName);
+            if (!texture || texture.key === '__MISSING') {
+                console.warn(`❌ Missing texture: ${imageName}`);
+            } else {
+                console.log(`✅ Loaded texture: ${imageName}`);
+            }
+        });
+        
+        // 音声のチェック
+        this.categoryData.sounds.forEach(soundName => {
+            if (this.cache.audio.exists(soundName)) {
+                console.log(`✅ Loaded audio: ${soundName}`);
+            } else {
+                console.warn(`❌ Missing audio: ${soundName}`);
+            }
         });
     }
 
