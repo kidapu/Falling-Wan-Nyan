@@ -121,13 +121,13 @@ export class GrowthManager {
     }
 
     private updatePhysicsBody(sprite: Phaser.Physics.Matter.Sprite, scale: number): void {
-        if (sprite.body) {
+        if (sprite.body && 'velocity' in sprite.body) {
             // Store current position and velocity
             const currentX = sprite.x
             const currentY = sprite.y
             const currentVelocityX = sprite.body.velocity.x
             const currentVelocityY = sprite.body.velocity.y
-            const currentAngularVelocity = sprite.body.angularVelocity
+            const currentAngularVelocity = 'angularVelocity' in sprite.body ? sprite.body.angularVelocity : 0
             
             // Update body size
             sprite.setBody({
