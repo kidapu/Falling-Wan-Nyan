@@ -26,7 +26,7 @@ export class PhysicsManager {
         const gameHeight = this.viewportManager.getGameHeight()
         
         if (this.floor) {
-            this.scene.matter.world.remove(this.scene.matter.world.bodies, this.floor)
+            this.scene.matter.world.remove(this.floor)
         }
         
         this.floor = this.scene.matter.add.rectangle(gameWidth / 2, gameHeight - 20, gameWidth, 40, {
