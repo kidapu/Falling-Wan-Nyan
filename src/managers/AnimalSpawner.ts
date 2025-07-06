@@ -17,9 +17,6 @@ export class AnimalSpawner {
         this.viewportManager = viewportManager
         this.soundManager = soundManager
         this.growthManager = growthManager
-        
-        // Listen for sprite removal events
-        this.scene.events.on('sprite-removed', this.handleSpriteRemoved.bind(this))
     }
 
     private handleSpriteRemoved(sprite: Phaser.Physics.Matter.Sprite): void {
@@ -34,6 +31,9 @@ export class AnimalSpawner {
     }
 
     startSpawning(): void {
+        // Setup sprite removal event listener when starting
+        this.scene.events.on('sprite-removed', this.handleSpriteRemoved.bind(this))
+        
         this.spawnTimer = this.scene.time.addEvent({
             delay: 1500,
             callback: this.spawnRandomAnimal,
