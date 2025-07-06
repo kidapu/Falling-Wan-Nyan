@@ -115,7 +115,7 @@ export class AssetLoader {
             'elephant-01': 'elephant'
         }
         
-        this.assetPaths = { images: 'illust/', sounds: 'voice/' }
+        this.assetPaths = { images: 'illust/animals/', sounds: 'voice/animals/' }
         this.fileExtensions = { images: '.png', sounds: '.wav' }
         
         this.loadImages()

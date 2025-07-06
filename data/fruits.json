@@ -1,0 +1,39 @@
+{
+  "category": "fruits",
+  "displayName": "フルーツ",
+  "images": [
+    "apple", "banana", "strawberry", "orange", "grape",
+    "peach", "pear", "watermelon", "kiwi", "mango",
+    "pineapple", "lemon", "blueberry", "cherry", "melon"
+  ],
+  "sounds": [
+    "apple", "banana", "strawberry", "orange", "grape",
+    "peach", "pear", "watermelon", "kiwi", "mango", 
+    "pineapple", "lemon", "blueberry", "cherry", "melon"
+  ],
+  "audioMap": {
+    "apple": "apple",
+    "banana": "banana",
+    "strawberry": "strawberry",
+    "orange": "orange",
+    "grape": "grape",
+    "peach": "peach",
+    "pear": "pear",
+    "watermelon": "watermelon",
+    "kiwi": "kiwi",
+    "mango": "mango",
+    "pineapple": "pineapple",
+    "lemon": "lemon",
+    "blueberry": "blueberry",
+    "cherry": "cherry",
+    "melon": "melon"
+  },
+  "assetPaths": {
+    "images": "illust/fruits/",
+    "sounds": "voice/fruits/"
+  },
+  "fileExtensions": {
+    "images": ".png",
+    "sounds": ".wav"
+  }
+}
