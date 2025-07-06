@@ -44,9 +44,6 @@ export class UnifiedSpawner {
             maxSprites: 20,
             ...config
         }
-        
-        // Listen for sprite removal events
-        this.scene.events.on('sprite-removed', this.handleSpriteRemoved.bind(this))
     }
 
     public setCategoryData(category: string, data: CategoryData): void {
@@ -79,6 +76,9 @@ export class UnifiedSpawner {
     }
 
     public startSpawning(): void {
+        // Setup sprite removal event listener when starting (scene is fully initialized)
+        this.scene.events.on('sprite-removed', this.handleSpriteRemoved.bind(this))
+        
         if (this.spawnTimer) {
             this.spawnTimer.remove()
         }

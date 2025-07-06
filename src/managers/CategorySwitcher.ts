@@ -155,8 +155,8 @@ export class CategorySwitcher {
 
         // カテゴリ名のマッピング
         const categoryNames: Record<string, string> = {
-            'animals': '動物モード',
-            'fruits': 'フルーツモード'
+            'animals': 'どうぶつのなまえは？',
+            'fruits': 'フルーツのなまえは？'
         }
 
         // 切り替えアニメーション
@@ -177,7 +177,7 @@ export class CategorySwitcher {
         const switchNotification = this.scene.add.text(
             this.scene.scale.width / 2, 
             this.scene.scale.height / 2, 
-            `${categoryNames[toCategory]}に切り替わりました`,
+            `${categoryNames[toCategory]}`,
             {
                 fontSize: '32px',
                 color: '#FFFFFF',
@@ -223,8 +223,8 @@ export class CategorySwitcher {
         if (!this.categoryText) return
 
         const categoryNames: Record<string, string> = {
-            'animals': '動物モード',
-            'fruits': 'フルーツモード'
+            'animals': 'どうぶつのなまえは？',
+            'fruits': 'フルーツのなまえは？'
         }
 
         const currentCategory = this.getCurrentCategory()
