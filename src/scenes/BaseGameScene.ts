@@ -63,7 +63,7 @@ export abstract class BaseGameScene extends Phaser.Scene {
         this.viewportManager = new ViewportManager(this)
         this.physicsManager = new PhysicsManager(this, this.viewportManager)
         this.growthManager = new GrowthManager(this, this.config.growthConfig)
-        this.soundManager = new SoundManager(this, this.assetLoader)
+        this.soundManager = new SoundManager(this)
     }
 
     protected initializeGame() {

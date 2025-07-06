@@ -100,21 +100,6 @@ export class GameScene extends Phaser.Scene {
         const targetColor = colors[category as keyof typeof colors] || '#87CEEB'
         
         // 背景色のスムーズな変更
-        this.tweens.addCounter({
-            from: 0,
-            to: 1,
-            duration: 1000,
-            ease: 'Power2.easeInOut',
-            onUpdate: (tween) => {
-                const progress = tween.getValue()
-                const currentColor = Phaser.Display.Color.Interpolate.ColorWithColor(
-                    Phaser.Display.Color.HexStringToColor(this.cameras.main.backgroundColor.toString(16)),
-                    Phaser.Display.Color.HexStringToColor(targetColor),
-                    1,
-                    progress
-                )
-                this.cameras.main.setBackgroundColor(Phaser.Display.Color.GetColor(currentColor.r, currentColor.g, currentColor.b))
-            }
-        })
+        this.cameras.main.setBackgroundColor(targetColor)
     }
 }
