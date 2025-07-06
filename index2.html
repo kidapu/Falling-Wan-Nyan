@@ -132,7 +132,7 @@
 
             createEmojiTexture(key, emoji) {
                 const canvas = document.createElement('canvas');
-                const size = 128;
+                const size = 384; // 128 * 3 = 384
                 canvas.width = size;
                 canvas.height = size;
                 const ctx = canvas.getContext('2d');
@@ -227,20 +227,30 @@
             }
 
             async resetAnimal(sprite) {
-                const baseScale = sprite.getData('baseScale') || 1;
-                const resetScale = baseScale * this.config.resetScale;
-                
                 return new Promise((resolve) => {
+                    sprite.setData('removing', true);
+                    sprite.setStatic(true);
+                    
                     sprite.scene.tweens.add({
                         targets: sprite,
-                        scaleX: resetScale,
-                        scaleY: resetScale,
+                        scaleX: 0,
+                        scaleY: 0,
+                        alpha: 0.3,
                         duration: this.config.resetDuration,
                         ease: 'Power2.easeOut',
                         onComplete: () => {
-                            sprite.setScale(baseScale);
-                            this.updatePhysicsBody(sprite, baseScale);
-                            sprite.setData('growthLevel', 0);
+                            // Remove from sprites array
+                            const scene = sprite.scene;
+                            if (scene.fruitSprites) {
+                                const index = scene.fruitSprites.indexOf(sprite);
+                                if (index > -1) {
+                                    scene.fruitSprites.splice(index, 1);
+                                }
+                            }
+                            
+                            if (sprite && sprite.active) {
+                                sprite.destroy();
+                            }
                             resolve();
                         }
                     });
@@ -431,9 +441,9 @@
                 const minDimension = Math.min(this.gameWidth, this.gameHeight);
                 let scale;
                 if (aspectRatio > 1.2) {
-                    scale = Math.min(1.0, Math.max(0.7, minDimension / 600));
+                    scale = Math.min(0.65, Math.max(0.455, minDimension / 923));
                 } else {
-                    scale = Math.min(0.7, Math.max(0.4, minDimension / 700));
+                    scale = Math.min(0.455, Math.max(0.26, minDimension / 1077));
                 }
                 
                 fruit.setScale(scale);
