@@ -61,13 +61,13 @@ export abstract class BaseGameScene extends Phaser.Scene {
 
     protected initializeManagers() {
         this.viewportManager = new ViewportManager(this)
-        this.physicsManager = new PhysicsManager(this)
+        this.physicsManager = new PhysicsManager(this, this.viewportManager)
         this.growthManager = new GrowthManager(this, this.config.growthConfig)
         this.soundManager = new SoundManager(this, this.assetLoader)
     }
 
     protected initializeGame() {
-        this.physicsManager.setupWorld(this.gameWidth, this.gameHeight)
+        this.physicsManager.initialize()
         this.updateFloorPosition()
         this.cameras.main.setBackgroundColor(this.config.backgroundColor)
         this.startSpawning()
