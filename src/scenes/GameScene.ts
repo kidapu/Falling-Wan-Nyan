@@ -20,7 +20,7 @@ export class GameScene extends Phaser.Scene {
         this.assetLoader = new AssetLoader(this)
         this.viewportManager = new ViewportManager(this)
         this.soundManager = new SoundManager(this)
-        this.growthManager = new GrowthManager(this)
+        this.growthManager = new GrowthManager(this, { removeOnMaxLevel: true })
         this.animalSpawner = new AnimalSpawner(this, this.viewportManager, this.soundManager, this.growthManager)
         this.physicsManager = new PhysicsManager(this, this.viewportManager)
     }

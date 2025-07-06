@@ -17,6 +17,16 @@ export class AnimalSpawner {
         this.viewportManager = viewportManager
         this.soundManager = soundManager
         this.growthManager = growthManager
+        
+        // Listen for sprite removal events
+        this.scene.events.on('sprite-removed', this.handleSpriteRemoved.bind(this))
+    }
+
+    private handleSpriteRemoved(sprite: Phaser.Physics.Matter.Sprite): void {
+        const index = this.animalSprites.indexOf(sprite)
+        if (index > -1) {
+            this.animalSprites.splice(index, 1)
+        }
     }
 
     setAnimalKeys(keys: string[]): void {
