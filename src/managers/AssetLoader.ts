@@ -1,3 +1,5 @@
+import { EmojiTextureGenerator } from './EmojiTextureGenerator'
+
 export interface CategoryData {
     category: string
     displayName: string
@@ -12,6 +14,7 @@ export interface CategoryData {
         images?: string
         sounds?: string
     }
+    emojiMapping?: Record<string, string> // For emoji-based textures
 }
 
 export class AssetLoader {
@@ -21,21 +24,25 @@ export class AssetLoader {
     private assetPaths: Record<string, string> = {}
     private fileExtensions: Record<string, string> = {}
     private loadedImageKeys: string[] = []
+    private emojiGenerator: EmojiTextureGenerator
+    private dataFileName: string
 
-    constructor(scene: Phaser.Scene) {
+    constructor(scene: Phaser.Scene, dataFileName: string = 'animals') {
         this.scene = scene
+        this.dataFileName = dataFileName
+        this.emojiGenerator = new EmojiTextureGenerator(scene)
     }
 
     async loadAssets(): Promise<void> {
         return new Promise((resolve, reject) => {
             this.setupLoadHandlers(resolve, reject)
-            this.scene.load.json('animals', 'data/animals.json')
+            this.scene.load.json(this.dataFileName, `data/${this.dataFileName}.json`)
             this.scene.load.start()
         })
     }
 
     private setupLoadHandlers(resolve: () => void, reject: (error: Error) => void): void {
-        this.scene.load.on('filecomplete-json-animals', () => {
+        this.scene.load.on(`filecomplete-json-${this.dataFileName}`, () => {
             this.loadCategoryAssets().then(resolve).catch(reject)
         })
 
@@ -55,7 +62,7 @@ export class AssetLoader {
 
     private async loadCategoryAssets(): Promise<void> {
         try {
-            this.categoryData = this.scene.cache.json.get('animals') as CategoryData
+            this.categoryData = this.scene.cache.json.get(this.dataFileName) as CategoryData
             
             if (!this.categoryData) {
                 console.error('❌ Failed to load category data')
@@ -69,7 +76,12 @@ export class AssetLoader {
             this.assetPaths = this.categoryData.assetPaths || {}
             this.fileExtensions = this.categoryData.fileExtensions || {}
             
-            this.loadImages()
+            // Load emoji textures if available, otherwise load images
+            if (this.categoryData.emojiMapping) {
+                this.loadEmojiTextures()
+            } else {
+                this.loadImages()
+            }
             this.loadSounds()
             
             this.scene.load.start()
@@ -87,6 +99,18 @@ export class AssetLoader {
         this.categoryData?.images.forEach(imageName => {
             this.scene.load.image(imageName, `${imagePath}${imageName}${imageExt}`)
             this.loadedImageKeys.push(imageName)
+        })
+    }
+
+    private loadEmojiTextures(): void {
+        if (!this.categoryData?.emojiMapping) return
+        
+        this.categoryData.images.forEach(imageName => {
+            const emoji = this.categoryData!.emojiMapping![imageName]
+            if (emoji) {
+                this.emojiGenerator.createEmojiTexture(imageName, emoji)
+                this.loadedImageKeys.push(imageName)
+            }
         })
     }
 

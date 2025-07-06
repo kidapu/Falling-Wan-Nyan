@@ -35,5 +35,22 @@
   "fileExtensions": {
     "images": ".png",
     "sounds": ".wav"
+  },
+  "emojiMapping": {
+    "apple": "🍎",
+    "banana": "🍌",
+    "strawberry": "🍓",
+    "orange": "🍊",
+    "grape": "🍇",
+    "peach": "🍑",
+    "pear": "🍐",
+    "watermelon": "🍉",
+    "kiwi": "🥝",
+    "mango": "🥭",
+    "pineapple": "🍍",
+    "lemon": "🍋",
+    "blueberry": "🫐",
+    "cherry": "🍒",
+    "melon": "🍈"
   }
 }

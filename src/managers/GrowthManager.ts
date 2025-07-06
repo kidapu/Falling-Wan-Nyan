@@ -5,6 +5,7 @@ export interface GrowthConfig {
     resetDuration: number
     resetScale: number
     soundPitchStep: number
+    removeOnMaxLevel: boolean // true: remove sprite, false: reset to base
 }
 
 export interface GrowthState {
@@ -19,7 +20,7 @@ export class GrowthManager {
     private scene: Phaser.Scene
     private config: GrowthConfig
 
-    constructor(scene: Phaser.Scene) {
+    constructor(scene: Phaser.Scene, config?: Partial<GrowthConfig>) {
         this.scene = scene
         this.config = {
             maxLevel: 10,
@@ -27,7 +28,9 @@ export class GrowthManager {
             growthDuration: 200,
             resetDuration: 200,
             resetScale: 0.9,
-            soundPitchStep: 0.08
+            soundPitchStep: 0.08,
+            removeOnMaxLevel: false, // default: reset behavior (animals)
+            ...config
         }
     }
 
@@ -61,9 +64,15 @@ export class GrowthManager {
             growthState.isGrowing = true
             
             if (growthState.currentLevel >= growthState.maxLevel) {
-                this.resetAnimal(sprite).then(() => {
-                    resolve(true)
-                })
+                if (this.config.removeOnMaxLevel) {
+                    this.removeAnimal(sprite).then(() => {
+                        resolve(true)
+                    })
+                } else {
+                    this.resetAnimal(sprite).then(() => {
+                        resolve(true)
+                    })
+                }
                 return
             }
 
@@ -106,12 +115,37 @@ export class GrowthManager {
                     growthState.isGrowing = false
                     growthState.isResetting = false
                     this.updatePhysicsBody(sprite, resetScale)
-                    console.log(`💥 Animal reset to base size`)
                     resolve()
                 }
             })
+        })
+    }
 
-            // Reset effect removed
+    private removeAnimal(sprite: Phaser.Physics.Matter.Sprite): Promise<void> {
+        return new Promise((resolve) => {
+            const growthState = sprite.getData('growthState') as GrowthState
+            growthState.isResetting = true
+            
+            sprite.setData('removing', true)
+            sprite.setStatic(true)
+            
+            this.scene.tweens.add({
+                targets: sprite,
+                scaleX: 0,
+                scaleY: 0,
+                alpha: 0.3,
+                duration: this.config.resetDuration,
+                ease: 'Power2.easeOut',
+                onComplete: () => {
+                    // Emit custom event for scene to handle sprite removal
+                    this.scene.events.emit('sprite-removed', sprite)
+                    
+                    if (sprite && sprite.active) {
+                        sprite.destroy()
+                    }
+                    resolve()
+                }
+            })
         })
     }
 
