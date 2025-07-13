@@ -46,8 +46,5 @@
   "fileExtensions": {
     "images": ".png",
     "sounds": ".wav"
-  },
-  "emojiMapping": {
-    "rabbit-01": "🐰"
   }
 }

@@ -6,7 +6,8 @@
       "Bash(mv:*)",
       "Bash(ls:*)",
       "Bash(chmod:*)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(npm run serve:*)"
     ],
     "deny": []
   }
