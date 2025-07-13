@@ -199,12 +199,8 @@ export class GrowthManager {
             const currentVelocityY = sprite.body.velocity.y
             const currentAngularVelocity = 'angularVelocity' in sprite.body ? sprite.body.angularVelocity : 0
             
-            // Temporarily pause physics engine to prevent race conditions
-            const world = 'world' in sprite.body ? sprite.body.world : null
-            const wasRunning = world?.enabled ?? false
-            if (wasRunning && world) {
-                world.enabled = false
-            }
+            // Store current physics state before updating body
+            const wasStatic = sprite.body.isStatic
             
             // Update body size
             sprite.setBody({
@@ -213,9 +209,9 @@ export class GrowthManager {
                 height: sprite.height * scale
             })
             
-            // Re-enable physics engine
-            if (wasRunning && world) {
-                world.enabled = true
+            // Restore static state if it was changed
+            if (wasStatic !== sprite.body.isStatic) {
+                sprite.setStatic(wasStatic)
             }
             
             // Restore position and velocity after a small delay to ensure body is fully initialized
