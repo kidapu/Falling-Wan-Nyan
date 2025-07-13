@@ -199,21 +199,17 @@ export class GrowthManager {
             const currentVelocityY = sprite.body.velocity.y
             const currentAngularVelocity = 'angularVelocity' in sprite.body ? sprite.body.angularVelocity : 0
             
-            // Update body size
+            // Update body size and immediately restore position to prevent (0,0) flicker
             sprite.setBody({
                 type: 'rectangle',
                 width: sprite.width * scale,
                 height: sprite.height * scale
             })
             
-            // Restore position and velocity after a small delay to ensure body is fully initialized
-            sprite.scene.time.delayedCall(1, () => {
-                if (sprite && sprite.active && sprite.body) {
-                    sprite.setPosition(currentX, currentY)
-                    sprite.setVelocity(currentVelocityX, currentVelocityY)
-                    sprite.setAngularVelocity(currentAngularVelocity)
-                }
-            })
+            // Immediately restore position and velocity to prevent visual flicker
+            sprite.setPosition(currentX, currentY)
+            sprite.setVelocity(currentVelocityX, currentVelocityY)
+            sprite.setAngularVelocity(currentAngularVelocity)
             
         } catch (error) {
             console.error('❌ Physics body update error:', error)
