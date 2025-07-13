@@ -13,6 +13,16 @@ class GameScene extends Phaser.Scene {
         this.audioMap = {};
         this.assetPaths = {};
         this.fileExtensions = {};
+        
+        // イベントリスナー管理
+        this.viewportResizeHandler = null;
+        this.hasViewportListener = false;
+        
+        // 物理更新ロック
+        this.isUpdatingPhysics = false;
+        
+        // 配列操作ロック
+        this.isUpdatingSprites = false;
     }
 
     preload() {
@@ -152,11 +162,7 @@ class GameScene extends Phaser.Scene {
         this.gameHeight = this.getViewportHeight();
         
         // Visual Viewport APIでリサイズ監視（iPhone Safari対応）
-        if (window.visualViewport) {
-            window.visualViewport.addEventListener('resize', () => {
-                this.handleViewportChange();
-            });
-        }
+        this.setupViewportListener();
         
         // ゲーム初期化を実行
         this.initializeGame();
@@ -168,37 +174,74 @@ class GameScene extends Phaser.Scene {
             window.innerHeight;
     }
     
+    setupViewportListener() {
+        if (window.visualViewport && !this.hasViewportListener) {
+            this.viewportResizeHandler = () => {
+                console.log('📱 Viewport change detected');
+                this.handleViewportChange();
+            };
+            window.visualViewport.addEventListener('resize', this.viewportResizeHandler);
+            this.hasViewportListener = true;
+            console.log('✅ Viewport listener registered');
+        }
+    }
+    
+    removeViewportListener() {
+        if (window.visualViewport && this.hasViewportListener && this.viewportResizeHandler) {
+            window.visualViewport.removeEventListener('resize', this.viewportResizeHandler);
+            this.hasViewportListener = false;
+            this.viewportResizeHandler = null;
+            console.log('✅ Viewport listener removed');
+        }
+    }
+    
     handleViewportChange() {
         const newHeight = this.getViewportHeight();
-        if (Math.abs(this.gameHeight - newHeight) > 10) { // 10px以上の変化で更新
+        const heightDiff = Math.abs(this.gameHeight - newHeight);
+        console.log(`📱 Viewport: ${this.gameWidth}x${this.gameHeight} -> ${window.visualViewport.width}x${newHeight} (diff: ${heightDiff}px)`);
+        
+        if (heightDiff > 10) { // 10px以上の変化で更新
             this.gameWidth = window.visualViewport.width;
             this.gameHeight = newHeight;
             this.scale.resize(this.gameWidth, this.gameHeight);
+            console.log('🔄 Updating floor position due to viewport change');
             this.updateFloorPosition();
         }
     }
     
     updateFloorPosition() {
-        // 床の物理ボディを更新
-        if (this.floor) {
-            this.matter.world.remove(this.matter.world, this.floor);
-        }
-        this.floor = this.matter.add.rectangle(this.gameWidth / 2, this.gameHeight - 20, this.gameWidth, 40, {
-            isStatic: true,
-            render: {
-                fillStyle: '#8B4513'
-            }
-        });
+        // 物理更新中は他の物理操作をブロック
+        this.isUpdatingPhysics = true;
+        console.log('🔧 Starting floor physics update');
         
-        // 床のグラフィックを更新
-        if (this.floorGraphics) {
-            this.floorGraphics.destroy();
+        try {
+            // 床の物理ボディを更新
+            if (this.floor) {
+                this.matter.world.remove(this.matter.world, this.floor);
+            }
+            this.floor = this.matter.add.rectangle(this.gameWidth / 2, this.gameHeight - 20, this.gameWidth, 40, {
+                isStatic: true,
+                render: {
+                    fillStyle: '#8B4513'
+                }
+            });
+            
+            // 床のグラフィックを更新
+            if (this.floorGraphics) {
+                this.floorGraphics.destroy();
+            }
+            this.floorGraphics = this.add.graphics();
+            this.floorGraphics.fillStyle(0x8B4513);
+            this.floorGraphics.fillRect(0, this.gameHeight - 40, this.gameWidth, 40);
+            this.floorGraphics.fillStyle(0x228B22);
+            this.floorGraphics.fillRect(0, this.gameHeight - 45, this.gameWidth, 5);
+        } catch (error) {
+            console.error('❌ Floor update error:', error);
+        } finally {
+            // 物理更新ロックを解除
+            this.isUpdatingPhysics = false;
+            console.log('✅ Floor physics update completed');
         }
-        this.floorGraphics = this.add.graphics();
-        this.floorGraphics.fillStyle(0x8B4513);
-        this.floorGraphics.fillRect(0, this.gameHeight - 40, this.gameWidth, 40);
-        this.floorGraphics.fillStyle(0x228B22);
-        this.floorGraphics.fillRect(0, this.gameHeight - 45, this.gameWidth, 5);
     }
     
     initializeGame() {
@@ -250,7 +293,13 @@ class GameScene extends Phaser.Scene {
         const x = Phaser.Math.Between(50, this.gameWidth - 50);
 
         // スプライトを作成
-        const animal = this.matter.add.sprite(x, 0, randomKey);
+        let animal;
+        try {
+            animal = this.matter.add.sprite(x, 0, randomKey);
+        } catch (error) {
+            console.error(`❌ Failed to create sprite: ${randomKey}`, error);
+            return;
+        }
         
         // スプライトが正常に作成されたかチェック
         if (!animal || !animal.texture || animal.texture.key === '__MISSING') {
@@ -280,31 +329,39 @@ class GameScene extends Phaser.Scene {
         animal.setPosition(x, y);
 
         // 物理プロパティ設定
-        animal.setBody({
-            type: 'rectangle',
-            width: animal.width * scale,
-            height: animal.height * scale
-        });
+        try {
+            animal.setBody({
+                type: 'rectangle',
+                width: animal.width * scale,
+                height: animal.height * scale
+            });
 
-        // バウンス（跳ね返り）を設定
-        animal.setBounce(0.3);
-        
-        // 摩擦を設定
-        animal.setFriction(0.7);
+            // バウンス（跳ね返り）を設定
+            animal.setBounce(0.3);
+            
+            // 摩擦を設定
+            animal.setFriction(0.7);
 
-        // 初期速度を設定（現状の2/3に減速）
-        animal.setVelocity(0, 0); // 初期速度を0にリセット
-        
-        // 少しの回転を追加（さらに減少して0.3倍）
-        animal.setAngularVelocity(Phaser.Math.FloatBetween(-0.01, 0.01));
+            // 初期速度を設定（現状の2/3に減速）
+            animal.setVelocity(0, 0); // 初期速度を0にリセット
+            
+            // 少しの回転を追加（さらに減少して0.3倍）
+            animal.setAngularVelocity(Phaser.Math.FloatBetween(-0.01, 0.01));
+        } catch (error) {
+            console.error(`❌ Physics setup error for ${randomKey}:`, error);
+            if (animal && animal.active) {
+                animal.destroy();
+            }
+            return;
+        }
 
         // スプライトをインタラクティブにしてクリック/タップ可能にする
         animal.setInteractive();
         
         // クリック/タップイベントハンドラーを追加
         animal.on('pointerdown', () => {
-            // フェード中のスプライトは反応しない
-            if (animal.getData('removing')) {
+            // フェード中またはアニメーション中のスプライトは反応しない
+            if (animal.getData('removing') || animal.getData('clickAnimating')) {
                 return;
             }
             this.playAnimalSound(randomKey, animal);
@@ -314,44 +371,80 @@ class GameScene extends Phaser.Scene {
         this.animalSprites.push(animal);
 
         // 画面外に出たスプライトを削除するためのチェック
-        this.time.delayedCall(10000, () => {
+        const cleanupTimer = this.time.delayedCall(10000, () => {
             if (animal && animal.active) {
                 this.removeAnimalWithAnimation(animal);
             }
         });
+        
+        // タイマーをスプライトに関連付け
+        animal.setData('cleanupTimer', cleanupTimer);
     }
 
     removeAnimalWithAnimation(animal) {
-        // すでにアニメーション中でないかチェック
-        if (animal.getData('removing')) {
+        // 物理更新中は削除を延期
+        if (this.isUpdatingPhysics) {
+            console.log('⏳ Delaying animal removal due to physics update');
+            this.time.delayedCall(50, () => {
+                this.removeAnimalWithAnimation(animal);
+            });
             return;
         }
         
-        // 削除フラグを設定
-        animal.setData('removing', true);
+        // すでにアニメーション中でないかチェック
+        if (animal.getData('removing')) {
+            console.log('⚠️ Attempted to remove already removing animal');
+            return;
+        }
         
-        // 物理ボディの動きを停止（位置を固定）
-        animal.setStatic(true);
-        
-        // スケールダウンアニメーション（ease out 0.4秒）
-        this.tweens.add({
-            targets: animal,
-            scaleX: 0,
-            scaleY: 0,
-            alpha: 0.3,
-            duration: 400,
-            ease: 'Power2.easeOut',
-            onComplete: () => {
-                // アニメーション完了後に削除
-                const index = this.animalSprites.indexOf(animal);
-                if (index > -1) {
-                    this.animalSprites.splice(index, 1);
-                }
-                if (animal && animal.active) {
-                    animal.destroy();
-                }
+        try {
+            // 削除フラグを設定
+            animal.setData('removing', true);
+            console.log('🗑️ Starting animal removal animation');
+            
+            // 関連タイマーをクリア
+            const cleanupTimer = animal.getData('cleanupTimer');
+            if (cleanupTimer) {
+                cleanupTimer.remove();
+                animal.setData('cleanupTimer', null);
             }
-        });
+            
+            // 物理ボディの動きを停止（位置を固定）
+            try {
+                animal.setStatic(true);
+            } catch (error) {
+                console.error('❌ Failed to set static:', error);
+            }
+            
+            // スケールダウンアニメーション（ease out 0.4秒）
+            this.tweens.add({
+                targets: animal,
+                scaleX: 0,
+                scaleY: 0,
+                alpha: 0.3,
+                duration: 400,
+                ease: 'Power2.easeOut',
+                onComplete: () => {
+                    // アニメーション完了後に削除
+                    console.log('✅ Animal removal animation completed');
+                    this.safeRemoveFromArray(animal);
+                    if (animal && animal.active) {
+                        animal.destroy();
+                    }
+                }
+            });
+        } catch (error) {
+            console.error('❌ Remove animation error:', error);
+            // エラー時は即座削除
+            const cleanupTimer = animal.getData('cleanupTimer');
+            if (cleanupTimer) {
+                cleanupTimer.remove();
+            }
+            this.safeRemoveFromArray(animal);
+            if (animal && animal.active) {
+                animal.destroy();
+            }
+        }
     }
 
     playAnimalSound(animalKey, sprite) {
@@ -383,6 +476,14 @@ class GameScene extends Phaser.Scene {
     }
 
     showClickEffect(sprite) {
+        // 削除中のスプライトにはエフェクトを適用しない
+        if (sprite.getData('removing') || sprite.getData('clickAnimating')) {
+            return;
+        }
+        
+        // クリックアニメーション中フラグを設定
+        sprite.setData('clickAnimating', true);
+        
         // 現在のスケールを記録して相対的に拡大
         const originalScale = sprite.scaleX;
         const enlargeScale = originalScale * 1.38;
@@ -397,22 +498,55 @@ class GameScene extends Phaser.Scene {
             onComplete: () => {
                 // 元のスケールに確実に戻す
                 sprite.setScale(originalScale);
+                // クリックアニメーション中フラグをクリア
+                sprite.setData('clickAnimating', false);
             }
         });
     }
 
+    safeRemoveFromArray(animal) {
+        // 配列更新中は延期実行
+        if (this.isUpdatingSprites) {
+            this.time.delayedCall(10, () => {
+                this.safeRemoveFromArray(animal);
+            });
+            return;
+        }
+        
+        const index = this.animalSprites.indexOf(animal);
+        if (index > -1) {
+            this.animalSprites.splice(index, 1);
+        }
+    }
+    
+    destroy() {
+        // シーン破棄時にリスナーを削除
+        this.removeViewportListener();
+        super.destroy();
+    }
+    
     update() {
+        // 配列更新中はスキップ
+        if (this.isUpdatingSprites) {
+            return;
+        }
+        
         // 画面外に出たスプライトのみを削除（床より下に落ちた場合のみ）
         // 床の位置は this.gameHeight - 40 なので、それより下をチェック
         const floorY = this.gameHeight - 40;
         
-        this.animalSprites = this.animalSprites.filter(sprite => {
-            // 床より下に落ちた場合のみ削除アニメーション開始
-            if (sprite.y > floorY + 200 && !sprite.getData('removing')) {
-                this.removeAnimalWithAnimation(sprite);
-            }
-            return sprite.active;
-        });
+        this.isUpdatingSprites = true;
+        try {
+            this.animalSprites = this.animalSprites.filter(sprite => {
+                // 床より下に落ちた場合のみ削除アニメーション開始
+                if (sprite.y > floorY + 200 && !sprite.getData('removing')) {
+                    this.removeAnimalWithAnimation(sprite);
+                }
+                return sprite.active;
+            });
+        } finally {
+            this.isUpdatingSprites = false;
+        }
     }
 }
 

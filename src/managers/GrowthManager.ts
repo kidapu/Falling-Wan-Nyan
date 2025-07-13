@@ -48,6 +48,10 @@ export class GrowthManager {
     }
 
     canGrow(sprite: Phaser.Physics.Matter.Sprite): boolean {
+        if (!sprite || !sprite.active || sprite.getData('removing')) {
+            return false
+        }
+        
         const growthState = sprite.getData('growthState') as GrowthState
         return growthState && !growthState.isGrowing && !growthState.isResetting
     }
@@ -86,10 +90,15 @@ export class GrowthManager {
                 duration: this.config.growthDuration,
                 ease: 'Back.easeOut',
                 onComplete: () => {
-                    growthState.isGrowing = false
-                    this.updatePhysicsBody(sprite, newScale)
-                    console.log(`🌱 Animal grown to level ${growthState.currentLevel}`)
-                    resolve(true)
+                    if (sprite && sprite.active && !sprite.getData('removing')) {
+                        growthState.isGrowing = false
+                        this.updatePhysicsBody(sprite, newScale)
+                        console.log(`🌱 Animal grown to level ${growthState.currentLevel}`)
+                        resolve(true)
+                    } else {
+                        console.warn('⚠️ Sprite was removed during growth animation')
+                        resolve(false)
+                    }
                 }
             })
         })
@@ -110,12 +119,17 @@ export class GrowthManager {
                 duration: this.config.resetDuration,
                 ease: 'Power2.easeIn',
                 onComplete: () => {
-                    sprite.setAlpha(1)
-                    growthState.currentLevel = 0
-                    growthState.isGrowing = false
-                    growthState.isResetting = false
-                    this.updatePhysicsBody(sprite, resetScale)
-                    resolve()
+                    if (sprite && sprite.active && !sprite.getData('removing')) {
+                        sprite.setAlpha(1)
+                        growthState.currentLevel = 0
+                        growthState.isGrowing = false
+                        growthState.isResetting = false
+                        this.updatePhysicsBody(sprite, resetScale)
+                        resolve()
+                    } else {
+                        console.warn('⚠️ Sprite was removed during reset animation')
+                        resolve()
+                    }
                 }
             })
         })
@@ -123,11 +137,23 @@ export class GrowthManager {
 
     private removeAnimal(sprite: Phaser.Physics.Matter.Sprite): Promise<void> {
         return new Promise((resolve) => {
+            if (!sprite || !sprite.active) {
+                resolve()
+                return
+            }
+            
             const growthState = sprite.getData('growthState') as GrowthState
-            growthState.isResetting = true
+            if (growthState) {
+                growthState.isResetting = true
+            }
             
             sprite.setData('removing', true)
-            sprite.setStatic(true)
+            
+            try {
+                sprite.setStatic(true)
+            } catch (error) {
+                console.warn('⚠️ Failed to set sprite static during removal:', error)
+            }
             
             this.scene.tweens.add({
                 targets: sprite,
@@ -155,13 +181,30 @@ export class GrowthManager {
     }
 
     private updatePhysicsBody(sprite: Phaser.Physics.Matter.Sprite, scale: number): void {
-        if (sprite.body && 'velocity' in sprite.body) {
+        if (!sprite || !sprite.active || !sprite.body || sprite.getData('removing')) {
+            return
+        }
+
+        try {
+            // Check if body is valid and has required properties
+            if (!('velocity' in sprite.body) || !sprite.body.position) {
+                console.warn('⚠️ Invalid physics body detected, skipping update')
+                return
+            }
+
             // Store current position and velocity
             const currentX = sprite.x
             const currentY = sprite.y
             const currentVelocityX = sprite.body.velocity.x
             const currentVelocityY = sprite.body.velocity.y
             const currentAngularVelocity = 'angularVelocity' in sprite.body ? sprite.body.angularVelocity : 0
+            
+            // Temporarily pause physics engine to prevent race conditions
+            const world = sprite.body.world
+            const wasRunning = world.enabled
+            if (wasRunning) {
+                world.enabled = false
+            }
             
             // Update body size
             sprite.setBody({
@@ -170,14 +213,30 @@ export class GrowthManager {
                 height: sprite.height * scale
             })
             
-            // Restore position and velocity
-            sprite.setPosition(currentX, currentY)
-            sprite.setVelocity(currentVelocityX, currentVelocityY)
-            sprite.setAngularVelocity(currentAngularVelocity)
+            // Re-enable physics engine
+            if (wasRunning) {
+                world.enabled = true
+            }
+            
+            // Restore position and velocity after a small delay to ensure body is fully initialized
+            sprite.scene.time.delayedCall(1, () => {
+                if (sprite && sprite.active && sprite.body) {
+                    sprite.setPosition(currentX, currentY)
+                    sprite.setVelocity(currentVelocityX, currentVelocityY)
+                    sprite.setAngularVelocity(currentAngularVelocity)
+                }
+            })
+            
+        } catch (error) {
+            console.error('❌ Physics body update error:', error)
         }
     }
 
     getCurrentLevel(sprite: Phaser.Physics.Matter.Sprite): number {
+        if (!sprite || !sprite.active || sprite.getData('removing')) {
+            return 0
+        }
+        
         const growthState = sprite.getData('growthState') as GrowthState
         return growthState ? growthState.currentLevel : 0
     }
@@ -187,6 +246,10 @@ export class GrowthManager {
     }
 
     getSoundPitchMultiplier(sprite: Phaser.Physics.Matter.Sprite): number {
+        if (!sprite || !sprite.active || sprite.getData('removing')) {
+            return 1.0 // Default pitch for invalid sprites
+        }
+        
         const level = this.getCurrentLevel(sprite)
         return 1 + (level * this.config.soundPitchStep)
     }

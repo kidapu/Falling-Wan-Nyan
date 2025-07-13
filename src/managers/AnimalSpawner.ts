@@ -121,7 +121,8 @@ export class AnimalSpawner {
     }
 
     private async handleAnimalClick(animal: Phaser.Physics.Matter.Sprite, animalKey: string): Promise<void> {
-        if (!this.growthManager.canGrow(animal)) {
+        // Validate sprite state before any operations
+        if (!animal || !animal.active || animal.getData('removing') || !this.growthManager.canGrow(animal)) {
             return
         }
 
@@ -129,8 +130,11 @@ export class AnimalSpawner {
         const pitchMultiplier = this.growthManager.getSoundPitchMultiplier(animal)
         this.soundManager.playAnimalSoundWithPitch(animalKey, pitchMultiplier)
         
-        // Grow the animal
-        await this.growthManager.growAnimal(animal)
+        // Double-check sprite is still valid before growing
+        if (animal && animal.active && !animal.getData('removing')) {
+            // Grow the animal
+            await this.growthManager.growAnimal(animal)
+        }
         
         // Growth feedback removed
     }

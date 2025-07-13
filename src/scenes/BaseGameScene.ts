@@ -201,14 +201,18 @@ export abstract class BaseGameScene extends Phaser.Scene {
     }
 
     protected async handleSpriteClick(sprite: Phaser.Physics.Matter.Sprite, entityKey: string) {
-        if (!this.growthManager.canGrow(sprite)) {
+        // Validate sprite state before any operations
+        if (!sprite || !sprite.active || sprite.getData('removing') || !this.growthManager.canGrow(sprite)) {
             return
         }
 
         const pitchMultiplier = this.growthManager.getSoundPitchMultiplier(sprite)
         this.soundManager.playAnimalSoundWithPitch(entityKey, pitchMultiplier)
         
-        await this.growthManager.growAnimal(sprite)
+        // Double-check sprite is still valid before growing
+        if (sprite && sprite.active && !sprite.getData('removing')) {
+            await this.growthManager.growAnimal(sprite)
+        }
     }
 
     update() {
