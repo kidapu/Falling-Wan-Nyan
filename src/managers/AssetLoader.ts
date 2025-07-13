@@ -96,8 +96,20 @@ export class AssetLoader {
         const imagePath = this.assetPaths.images || 'illust/'
         const imageExt = this.fileExtensions.images || '.png'
         
+        // Special emoji mappings for specific items (not category-wide)
+        const specialEmojiMap: Record<string, string> = {
+            'rabbit-01': '🐰'
+        }
+        
         this.categoryData?.images.forEach(imageName => {
-            this.scene.load.image(imageName, `${imagePath}${imageName}${imageExt}`)
+            // Check if this specific image should use emoji texture
+            if (specialEmojiMap[imageName]) {
+                this.emojiGenerator.createEmojiTexture(imageName, specialEmojiMap[imageName])
+                console.log(`✅ Created special emoji texture: ${imageName} (${specialEmojiMap[imageName]})`)
+            } else {
+                // Load normal image file
+                this.scene.load.image(imageName, `${imagePath}${imageName}${imageExt}`)
+            }
             this.loadedImageKeys.push(imageName)
         })
     }
