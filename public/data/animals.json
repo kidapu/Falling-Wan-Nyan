@@ -45,7 +45,6 @@
     "lion",
     "monkey",
     "pig",
-    "rabbit",
     "turtle"
   ],
   "audioMap": {
@@ -72,7 +71,7 @@
     "monkey-01": "monkey",
     "monkey-02": "monkey",
     "pig-02": "pig",
-    "rabbit-01": "rabbit",
+    "rabbit-01": "cat",
     "turtle-01": "turtle"
   },
   "assetPaths": {
@@ -82,8 +81,5 @@
   "fileExtensions": {
     "images": ".png",
     "sounds": ".wav"
-  },
-  "emojiMapping": {
-    "rabbit-01": "🐰"
   }
 }
