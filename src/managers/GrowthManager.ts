@@ -200,9 +200,9 @@ export class GrowthManager {
             const currentAngularVelocity = 'angularVelocity' in sprite.body ? sprite.body.angularVelocity : 0
             
             // Temporarily pause physics engine to prevent race conditions
-            const world = sprite.body.world
-            const wasRunning = world.enabled
-            if (wasRunning) {
+            const world = 'world' in sprite.body ? sprite.body.world : null
+            const wasRunning = world?.enabled ?? false
+            if (wasRunning && world) {
                 world.enabled = false
             }
             
@@ -214,7 +214,7 @@ export class GrowthManager {
             })
             
             // Re-enable physics engine
-            if (wasRunning) {
+            if (wasRunning && world) {
                 world.enabled = true
             }
             

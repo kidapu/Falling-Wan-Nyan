@@ -20,11 +20,12 @@ export class SoundManager {
 
         // ユーザージェスチャーでAudioContextを有効化
         const resumeAudioContext = () => {
-            if (!this.audioContextResumed && this.scene.sound && this.scene.sound.context) {
-                this.scene.sound.context.resume().then(() => {
+            const soundManager = this.scene.sound as any
+            if (!this.audioContextResumed && soundManager && soundManager.context) {
+                soundManager.context.resume().then(() => {
                     this.audioContextResumed = true
                     console.log('✅ AudioContext resumed after user gesture')
-                }).catch((error) => {
+                }).catch((error: any) => {
                     console.warn('Failed to resume AudioContext:', error)
                 })
             }
@@ -133,12 +134,13 @@ export class SoundManager {
     }
 
     private checkAudioContext(): boolean {
-        if (!this.scene.sound || !this.scene.sound.context) {
+        const soundManager = this.scene.sound as any
+        if (!soundManager || !soundManager.context) {
             console.warn('No audio context available')
             return false
         }
 
-        if (this.scene.sound.context.state === 'suspended') {
+        if (soundManager.context.state === 'suspended') {
             console.warn('AudioContext is suspended. User gesture required.')
             return false
         }
