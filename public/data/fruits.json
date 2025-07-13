@@ -3,12 +3,12 @@
   "displayName": "フルーツ",
   "images": [
     "apple", "banana", "strawberry", "orange", "grape",
-    "peach", "pear", "watermelon", "kiwi", "mango",
+    "peach", "pear", "watermelon", "kiwi",
     "pineapple", "lemon", "blueberry", "cherry", "melon"
   ],
   "sounds": [
     "apple", "banana", "strawberry", "orange", "grape",
-    "peach", "pear", "watermelon", "kiwi", "mango", 
+    "peach", "pear", "watermelon", "kiwi",
     "pineapple", "lemon", "blueberry", "cherry", "melon"
   ],
   "audioMap": {
@@ -21,7 +21,6 @@
     "pear": "pear",
     "watermelon": "watermelon",
     "kiwi": "kiwi",
-    "mango": "mango",
     "pineapple": "pineapple",
     "lemon": "lemon",
     "blueberry": "blueberry",
@@ -46,7 +45,6 @@
     "pear": "🍐",
     "watermelon": "🍉",
     "kiwi": "🥝",
-    "mango": "🥭",
     "pineapple": "🍍",
     "lemon": "🍋",
     "blueberry": "🫐",
