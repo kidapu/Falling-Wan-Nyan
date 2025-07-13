@@ -6,11 +6,11 @@
     "cat-01", "cat-02", "cat-03", "cat-04", "chiken-01",
     "cow-01", "dog-01", "dog-02", "elephant-01",
     "fish-01", "fish-02", "fox-01", "giraffe-01", "gorilla-01",
-    "lion-01", "monkey-01", "monkey-02", "pig-02", "turtle-01"
+    "lion-01", "monkey-01", "monkey-02", "pig-02", "rabbit-01", "turtle-01"
   ],
   "sounds": [
     "baby-chiken", "bird", "butterfly", "cat", "chiken", "cow", "dog", "elephant",
-    "fish", "fox", "giraffe", "gorilla", "lion", "monkey", "pig", "turtle"
+    "fish", "fox", "giraffe", "gorilla", "lion", "monkey", "pig", "rabbit", "turtle"
   ],
   "audioMap": {
     "baby-chiken-01": "baby-chiken",
@@ -36,6 +36,7 @@
     "monkey-01": "monkey",
     "monkey-02": "monkey",
     "pig-02": "pig",
+    "rabbit-01": "rabbit",
     "turtle-01": "turtle"
   },
   "assetPaths": {
@@ -45,5 +46,8 @@
   "fileExtensions": {
     "images": ".png",
     "sounds": ".wav"
+  },
+  "emojiMapping": {
+    "rabbit-01": "🐰"
   }
 }
