@@ -45,6 +45,7 @@
     "lion",
     "monkey",
     "pig",
+    "rabbit",
     "turtle"
   ],
   "audioMap": {
@@ -71,7 +72,7 @@
     "monkey-01": "monkey",
     "monkey-02": "monkey",
     "pig-02": "pig",
-    "rabbit-01": "cat",
+    "rabbit-01": "rabbit",
     "turtle-01": "turtle"
   },
   "assetPaths": {
