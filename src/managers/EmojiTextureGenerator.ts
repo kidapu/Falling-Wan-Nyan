@@ -12,6 +12,12 @@ export class EmojiTextureGenerator {
     }
 
     createEmojiTexture(key: string, emoji: string): void {
+        // Check if texture already exists to prevent duplicate creation
+        if (this.scene.textures.exists(key)) {
+            console.log(`⚠️ Texture "${key}" already exists, skipping creation`)
+            return
+        }
+
         const canvas = document.createElement('canvas')
         canvas.width = this.textureSize
         canvas.height = this.textureSize
@@ -24,6 +30,7 @@ export class EmojiTextureGenerator {
             ctx.fillText(emoji, this.textureSize / 2, this.textureSize / 2)
             
             this.scene.textures.addCanvas(key, canvas)
+            console.log(`✅ Created emoji texture: ${key} (${emoji})`)
         }
     }
 
