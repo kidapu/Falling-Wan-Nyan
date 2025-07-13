@@ -36,6 +36,9 @@ export class GameScene extends Phaser.Scene {
     }
 
     async preload(): Promise<void> {
+        // SE音ファイルを読み込み
+        this.load.audio('drop', 'voice/se/drop.mp3')
+        
         // 両方のカテゴリのアセットを読み込み
         await Promise.all([
             this.assetLoaderAnimals.loadAssets(),
@@ -66,7 +69,11 @@ export class GameScene extends Phaser.Scene {
             this.categorySwitcher.handleResize(this.scale.width, this.scale.height)
         })
         
+        // SoundManagerを初期化（inputが利用可能になってから）
+        this.soundManager.initialize()
+        
         this.physicsManager.initialize()
+        this.setupCollisionEvents()
         
         // カテゴリ切り替えイベントハンドラー設定
         this.categorySwitcher.setOnCategorySwitch(this.handleCategorySwitch.bind(this))
@@ -79,6 +86,42 @@ export class GameScene extends Phaser.Scene {
 
     update(): void {
         this.unifiedSpawner.update()
+    }
+
+    private setupCollisionEvents(): void {
+        // Listen for collision events to play drop sound when sprites hit floor
+        this.matter.world.on('collisionstart', (event: any) => {
+            const pairs = event.pairs
+            
+            for (let i = 0; i < pairs.length; i++) {
+                const { bodyA, bodyB } = pairs[i]
+                
+                // Check if collision involves the floor
+                const isFloorCollision = this.isFloorBody(bodyA) || this.isFloorBody(bodyB)
+                
+                if (isFloorCollision) {
+                    // Find the sprite body (not the floor)
+                    const spriteBody = this.isFloorBody(bodyA) ? bodyB : bodyA
+                    const sprite = this.findSpriteFromBody(spriteBody)
+                    
+                    if (sprite && !sprite.getData('hasLanded')) {
+                        // Mark sprite as landed to prevent multiple sounds
+                        sprite.setData('hasLanded', true)
+                        
+                        // Play drop sound
+                        // this.soundManager.playDropSound()
+                    }
+                }
+            }
+        })
+    }
+
+    private findSpriteFromBody(body: MatterJS.BodyType): Phaser.Physics.Matter.Sprite | null {
+        return this.unifiedSpawner.findSpriteFromBody(body)
+    }
+
+    private isFloorBody(body: MatterJS.BodyType): boolean {
+        return this.physicsManager.isFloorBody(body)
     }
 
     private handleCategorySwitch(event: CategorySwitchEvent): void {

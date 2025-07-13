@@ -292,4 +292,8 @@ export class UnifiedSpawner {
     public getAllSprites(): Phaser.Physics.Matter.Sprite[] {
         return [...this.gameSprites]
     }
+
+    public findSpriteFromBody(body: MatterJS.BodyType): Phaser.Physics.Matter.Sprite | null {
+        return this.gameSprites.find(sprite => sprite.body === body) || null
+    }
 }

@@ -70,6 +70,7 @@ export abstract class BaseGameScene extends Phaser.Scene {
         this.physicsManager.initialize()
         this.updateFloorPosition()
         this.cameras.main.setBackgroundColor(this.config.backgroundColor)
+        this.setupCollisionEvents()
         this.startSpawning()
     }
 
@@ -82,6 +83,37 @@ export abstract class BaseGameScene extends Phaser.Scene {
                 this.handleViewportChange()
             })
         }
+    }
+
+    protected setupCollisionEvents() {
+        // Listen for collision events to play drop sound when sprites hit floor
+        this.matter.world.on('collisionstart', (event: any) => {
+            const pairs = event.pairs
+            
+            for (let i = 0; i < pairs.length; i++) {
+                const { bodyA, bodyB } = pairs[i]
+                
+                // Check if one body is the floor and the other is a sprite
+                const spriteBody = this.findSpriteFromBody(bodyA) || this.findSpriteFromBody(bodyB)
+                const isFloorCollision = this.isFloorBody(bodyA) || this.isFloorBody(bodyB)
+                
+                if (spriteBody && isFloorCollision && !spriteBody.getData('hasLanded')) {
+                    // Mark sprite as landed to prevent multiple sounds
+                    spriteBody.setData('hasLanded', true)
+                    
+                    // Play drop sound
+                    this.soundManager.playDropSound()
+                }
+            }
+        })
+    }
+
+    private findSpriteFromBody(body: MatterJS.BodyType): Phaser.Physics.Matter.Sprite | null {
+        return this.gameSprites.find(sprite => sprite.body === body) || null
+    }
+
+    private isFloorBody(body: MatterJS.BodyType): boolean {
+        return body === this.floor
     }
 
     protected handleSpriteRemoved(sprite: Phaser.Physics.Matter.Sprite) {

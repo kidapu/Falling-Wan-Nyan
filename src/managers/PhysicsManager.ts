@@ -47,4 +47,12 @@ export class PhysicsManager {
     getFloorY(): number {
         return this.viewportManager.getGameHeight() - 40
     }
+
+    isFloorBody(body: MatterJS.BodyType): boolean {
+        return body === this.floor
+    }
+
+    getFloor(): MatterJS.BodyType | null {
+        return this.floor
+    }
 }
