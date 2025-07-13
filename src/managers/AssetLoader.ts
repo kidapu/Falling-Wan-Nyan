@@ -76,12 +76,8 @@ export class AssetLoader {
             this.assetPaths = this.categoryData.assetPaths || {}
             this.fileExtensions = this.categoryData.fileExtensions || {}
             
-            // Load emoji textures if available, otherwise load images
-            if (this.categoryData.emojiMapping) {
-                this.loadEmojiTextures()
-            } else {
-                this.loadImages()
-            }
+            // Always use loadImages() for mixed texture loading (PNG + emoji)
+            this.loadImages()
             this.loadSounds()
             
             this.scene.load.start()
@@ -96,16 +92,12 @@ export class AssetLoader {
         const imagePath = this.assetPaths.images || 'illust/'
         const imageExt = this.fileExtensions.images || '.png'
         
-        // Special emoji mappings for specific items (not category-wide)
-        const specialEmojiMap: Record<string, string> = {
-            'rabbit-01': '🐰'
-        }
-        
         this.categoryData?.images.forEach(imageName => {
             // Check if this specific image should use emoji texture
-            if (specialEmojiMap[imageName]) {
-                this.emojiGenerator.createEmojiTexture(imageName, specialEmojiMap[imageName])
-                console.log(`✅ Created special emoji texture: ${imageName} (${specialEmojiMap[imageName]})`)
+            if (this.categoryData?.emojiMapping?.[imageName]) {
+                const emoji = this.categoryData.emojiMapping[imageName]
+                this.emojiGenerator.createEmojiTexture(imageName, emoji)
+                console.log(`✅ Created emoji texture: ${imageName} (${emoji})`)
             } else {
                 // Load normal image file
                 this.scene.load.image(imageName, `${imagePath}${imageName}${imageExt}`)
