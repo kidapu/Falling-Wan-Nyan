@@ -23,7 +23,7 @@ export class GrowthManager {
     constructor(scene: Phaser.Scene, config?: Partial<GrowthConfig>) {
         this.scene = scene
         this.config = {
-            maxLevel: 7,
+            maxLevel: 6,
             growthMultiplier: 1.12,
             growthDuration: 200,
             resetDuration: 200,
