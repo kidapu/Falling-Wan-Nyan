@@ -199,20 +199,12 @@ export class GrowthManager {
             const currentVelocityY = sprite.body.velocity.y
             const currentAngularVelocity = 'angularVelocity' in sprite.body ? sprite.body.angularVelocity : 0
             
-            // Store current physics state before updating body
-            const wasStatic = sprite.body.isStatic
-            
             // Update body size
             sprite.setBody({
                 type: 'rectangle',
                 width: sprite.width * scale,
                 height: sprite.height * scale
             })
-            
-            // Restore static state if it was changed
-            if (wasStatic !== sprite.body.isStatic) {
-                sprite.setStatic(wasStatic)
-            }
             
             // Restore position and velocity after a small delay to ensure body is fully initialized
             sprite.scene.time.delayedCall(1, () => {
