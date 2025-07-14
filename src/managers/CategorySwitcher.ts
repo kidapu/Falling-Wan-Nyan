@@ -72,22 +72,22 @@ export class CategorySwitcher {
         
         // カテゴリ表示テキスト
         this.categoryText = this.scene.add.text(gameWidth / 2, 40, '', {
-            fontSize: '24px',
+            fontSize: '20px',
             color: '#FFFFFF',
             backgroundColor: 'rgba(0,0,0,0.7)',
-            padding: { x: 16, y: 8 },
+            padding: { x: 14, y: 7 },
             align: 'center'
-        }).setOrigin(0.5, 0.5).setDepth(1000)
+        }).setOrigin(0.5, 0.5).setDepth(1000).setScale(0.85)
 
         // カウントダウン表示テキスト
         if (this.config.showCountdown) {
-            this.countdownText = this.scene.add.text(gameWidth - 20, 20, '', {
-                fontSize: '18px',
+            this.countdownText = this.scene.add.text(gameWidth - 20, 40, '', {
+                fontSize: '20px',
                 color: '#FFFFFF',
-                backgroundColor: 'rgba(0,0,0,0.5)',
-                padding: { x: 8, y: 4 },
+                backgroundColor: 'rgba(0,0,0,0.7)',
+                padding: { x: 14, y: 7 },
                 align: 'right'
-            }).setOrigin(1, 0).setDepth(1000)
+            }).setOrigin(1, 0.5).setDepth(1000).setScale(0.85)
             
             // カウントダウンテキストをタップ可能にする
             this.countdownText.setInteractive({ useHandCursor: true })
@@ -242,10 +242,10 @@ export class CategorySwitcher {
 
         const seconds = Math.ceil(this.remainingTime / 1000)
         
-        // 警告時間内の場合は色を変更
+        // 警告時間内の場合は色を変更（「切り替えまで」テキストは追加しない）
         if (this.remainingTime <= this.config.warningTime) {
             this.countdownText.setColor('#FF6B6B')
-            this.countdownText.setText(`切り替えまで: ${seconds}秒`)
+            this.countdownText.setText(`${seconds}秒`)
         } else {
             this.countdownText.setColor('#FFFFFF')
             this.countdownText.setText(`${seconds}秒`)
@@ -293,7 +293,7 @@ export class CategorySwitcher {
             this.categoryText.setPosition(width / 2, 40)
         }
         if (this.countdownText) {
-            this.countdownText.setPosition(width - 20, 20)
+            this.countdownText.setPosition(width - 20, 40)
         }
     }
 }
