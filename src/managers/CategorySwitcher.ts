@@ -88,6 +88,12 @@ export class CategorySwitcher {
                 padding: { x: 8, y: 4 },
                 align: 'right'
             }).setOrigin(1, 0).setDepth(1000)
+            
+            // カウントダウンテキストをタップ可能にする
+            this.countdownText.setInteractive({ useHandCursor: true })
+            this.countdownText.on('pointerdown', () => {
+                this.handleCountdownTap()
+            })
         }
 
         this.updateCategoryDisplay()
@@ -244,6 +250,42 @@ export class CategorySwitcher {
             this.countdownText.setColor('#FFFFFF')
             this.countdownText.setText(`${seconds}秒`)
         }
+    }
+
+    private handleCountdownTap(): void {
+        // タップエフェクトを表示
+        this.showTapEffect()
+        
+        // 手動でカテゴリ切り替えを実行
+        this.performSwitch()
+    }
+    
+    private showTapEffect(): void {
+        if (!this.countdownText) return
+        
+        // 元のスケールと色を保存
+        const originalScale = this.countdownText.scaleX
+        const originalColor = this.countdownText.style.color
+        
+        // タップエフェクト: 短時間の拡大と色変更
+        this.scene.tweens.add({
+            targets: this.countdownText,
+            scaleX: originalScale * 1.2,
+            scaleY: originalScale * 1.2,
+            duration: 100,
+            ease: 'Power2.easeOut',
+            yoyo: true,
+            onComplete: () => {
+                // 元のスケールに戻す
+                this.countdownText?.setScale(originalScale)
+            }
+        })
+        
+        // 色の変更エフェクト
+        this.countdownText.setColor('#FFD700') // ゴールド
+        this.scene.time.delayedCall(200, () => {
+            this.countdownText?.setColor(originalColor)
+        })
     }
 
     public handleResize(width: number, height: number): void {
