@@ -49,6 +49,11 @@ export class UnifiedSpawner {
     public setCategoryData(category: string, data: CategoryData): void {
         this.categoryData[category] = data
         
+        // audioMapを追加
+        if (data.audioMap) {
+            this.soundManager.addAudioMappings(data.audioMap)
+        }
+        
         // エモジテクスチャを生成（フルーツの場合）
         if (data.emojiMapping) {
             Object.entries(data.emojiMapping).forEach(([key, emoji]) => {
@@ -68,11 +73,7 @@ export class UnifiedSpawner {
         // カテゴリ変更
         this.currentCategory = newCategory
         
-        // サウンドマネージャーを更新
-        const currentData = this.getCurrentCategoryData()
-        if (currentData?.audioMap) {
-            this.soundManager.setAudioMap(currentData.audioMap)
-        }
+        // audioMapは既にsetCategoryDataで追加済みなので、ここでは何もしない
     }
 
     public startSpawning(): void {

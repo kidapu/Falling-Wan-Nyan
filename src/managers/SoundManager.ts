@@ -40,6 +40,10 @@ export class SoundManager {
         }
     }
 
+    addAudioMappings(newMappings: Record<string, string>): void {
+        Object.assign(this.audioMap, newMappings)
+    }
+
     setAudioMap(audioMap: Record<string, string>): void {
         this.audioMap = audioMap
     }

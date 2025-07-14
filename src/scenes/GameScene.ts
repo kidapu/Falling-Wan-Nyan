@@ -56,10 +56,8 @@ export class GameScene extends Phaser.Scene {
             this.unifiedSpawner.setCategoryData('fruits', fruitsData)
         }
         
-        // 初期カテゴリ（動物）の音声マップを設定
-        if (animalsData?.audioMap) {
-            this.soundManager.setAudioMap(animalsData.audioMap)
-        }
+        // この時点で既にsetCategoryDataによってaudioMapは設定済み
+        // 追加で初期設定は不要
     }
     
 
