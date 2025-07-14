@@ -62,8 +62,8 @@ export class UnifiedSpawner {
         
         console.log(`🔄 Switching category from ${this.currentCategory} to ${newCategory}`)
         
-        // 既存スプライトをクリア
-        this.clearCurrentSprites()
+        // 既存スプライトは削除せずに残す
+        // 新しく生成されるスプライトのみを新カテゴリに変更
         
         // カテゴリ変更
         this.currentCategory = newCategory
