@@ -7,10 +7,27 @@ function getInitialViewportHeight(): number {
         window.innerHeight
 }
 
+function calculateGameDimensions(): { width: number, height: number } {
+    const maxWidth = 480
+    const isPC = window.innerWidth >= 768
+    
+    let width = window.innerWidth
+    let height = getInitialViewportHeight()
+    
+    // PCの場合は幅のみ制限（高さは全画面）
+    if (isPC) {
+        width = Math.min(width, maxWidth)
+    }
+    
+    return { width, height }
+}
+
+const dimensions = calculateGameDimensions()
+
 const config: Phaser.Types.Core.GameConfig = {
     type: Phaser.AUTO,
-    width: window.innerWidth,
-    height: getInitialViewportHeight(),
+    width: dimensions.width,
+    height: dimensions.height,
     parent: 'game-canvas',
     backgroundColor: '#87CEEB',
     scale: {

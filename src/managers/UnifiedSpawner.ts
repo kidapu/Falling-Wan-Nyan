@@ -206,16 +206,32 @@ export class UnifiedSpawner {
         // フルーツは少し大きめに（1.3倍調整済み）
         if (this.currentCategory === 'fruits') {
             if (aspectRatio > 1.2) {
+                // 横長画面（PC等）
                 return Math.min(0.65, Math.max(0.455, minDimension / 923))
             } else {
-                return Math.min(0.455, Math.max(0.26, minDimension / 1077))
+                // 縦長画面（モバイル）
+                if (minDimension < 450) {
+                    // iPhone系
+                    return Math.min(0.35, Math.max(0.2, minDimension / 1300))
+                } else {
+                    // iPad系
+                    return Math.min(0.455, Math.max(0.26, minDimension / 1077))
+                }
             }
         } else {
             // 動物のスケール
             if (aspectRatio > 1.2) {
+                // 横長画面（PC等）
                 return Math.min(1.0, Math.max(0.7, minDimension / 600))
             } else {
-                return Math.min(0.7, Math.max(0.4, minDimension / 700))
+                // 縦長画面（モバイル）
+                if (minDimension < 450) {
+                    // iPhone系（より小さく）
+                    return Math.min(0.5, Math.max(0.3, minDimension / 900))
+                } else {
+                    // iPad系（現状維持）
+                    return Math.min(0.7, Math.max(0.4, minDimension / 700))
+                }
             }
         }
     }

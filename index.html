@@ -22,12 +22,33 @@
         #game-canvas {
             width: 100vw;
             height: 100vh;
+            margin: 0 auto;
+            position: relative;
         }
         
         canvas {
             display: block;
             width: 100% !important;
             height: 100% !important;
+        }
+        
+        /* PC用の背景装飾 */
+        @media (min-width: 768px) {
+            body {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            }
+            
+            #game-canvas {
+                max-width: 480px;
+                height: 100vh;
+            }
+            
+            canvas {
+                max-width: 480px !important;
+                margin: 0 auto;
+                display: block;
+                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            }
         }
     </style>
 </head>
