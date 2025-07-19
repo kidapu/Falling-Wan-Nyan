@@ -11,13 +11,10 @@ export default defineConfig({
     outDir: 'dist',
     assetsDir: 'assets',
     rollupOptions: {
-      input: {
-        main: 'index.html',
-        debug: 'index2.html'
-      }
+      input: 'index.html'
     }
   },
-  publicDir: 'public',
+  publicDir: 'data',
   assetsInclude: ['**/*.png', '**/*.wav', '**/*.json'],
   esbuild: {
     target: 'es2020'
