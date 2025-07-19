@@ -7,7 +7,9 @@
       "Bash(ls:*)",
       "Bash(chmod:*)",
       "Bash(npm install:*)",
-      "Bash(npm run serve:*)"
+      "Bash(npm run serve:*)",
+      "Bash(npm run:*)",
+      "WebFetch(domain:developer.mozilla.org)"
     ],
     "deny": []
   }
