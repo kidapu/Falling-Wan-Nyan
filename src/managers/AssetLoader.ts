@@ -36,7 +36,7 @@ export class AssetLoader {
     async loadAssets(): Promise<void> {
         return new Promise((resolve, reject) => {
             this.setupLoadHandlers(resolve, reject)
-            this.scene.load.json(this.dataFileName, `data/json/${this.dataFileName}.json`)
+            this.scene.load.json(this.dataFileName, `json/${this.dataFileName}.json`)
             this.scene.load.start()
         })
     }
