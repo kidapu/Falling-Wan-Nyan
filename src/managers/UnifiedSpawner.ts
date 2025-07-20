@@ -49,10 +49,12 @@ export class UnifiedSpawner {
     public setCategoryData(category: string, data: CategoryData): void {
         this.categoryData[category] = data
         
-        // audioMapを追加
-        if (data.audioMap) {
-            this.soundManager.addAudioMappings(data.audioMap)
-        }
+        // audioMapを新しい構造から抽出して追加
+        const audioMap: Record<string, string> = {}
+        Object.entries(data.entities).forEach(([entityKey, entityData]) => {
+            audioMap[entityKey] = entityData.audioMap
+        })
+        this.soundManager.addAudioMappings(audioMap)
         
         // エモジテクスチャを生成（フルーツの場合）
         if (data.emojiMapping) {
@@ -117,7 +119,7 @@ export class UnifiedSpawner {
 
     private spawnRandomEntity(): void {
         const categoryData = this.getCurrentCategoryData()
-        if (!categoryData || !categoryData.images) {
+        if (!categoryData || !categoryData.entities) {
             return
         }
 
@@ -126,11 +128,14 @@ export class UnifiedSpawner {
             return
         }
 
+        // エンティティキー一覧を取得
+        const entityKeys = Object.keys(categoryData.entities)
+        
         // ランダムエンティティ選択（重複防止）
         let randomKey: string
         do {
-            randomKey = Phaser.Utils.Array.GetRandom(categoryData.images)
-        } while (randomKey === this.lastSpawned && categoryData.images.length > 1)
+            randomKey = Phaser.Utils.Array.GetRandom(entityKeys)
+        } while (randomKey === this.lastSpawned && entityKeys.length > 1)
         
         this.lastSpawned = randomKey
         
@@ -168,7 +173,7 @@ export class UnifiedSpawner {
     }
 
     private setupSprite(sprite: Phaser.Physics.Matter.Sprite, entityKey: string): void {
-        const scale = this.calculateScale()
+        const scale = this.calculateScale(entityKey)
         sprite.setScale(scale)
 
         // 位置調整
@@ -198,43 +203,53 @@ export class UnifiedSpawner {
         this.growthManager.initializeGrowthState(sprite, scale)
     }
 
-    private calculateScale(): number {
+    private calculateScale(entityKey: string): number {
         const gameWidth = this.scene.scale.width
         const gameHeight = this.scene.scale.height
         const aspectRatio = gameWidth / gameHeight
         const minDimension = Math.min(gameWidth, gameHeight)
         
+        // 個別のベーススケールを取得
+        const categoryData = this.categoryData[this.currentCategory]
+        const baseScale = categoryData?.entities?.[entityKey]?.baseScale || 1.0
+        
+        // レスポンシブ倍率を計算
+        let responsiveMultiplier: number
+        
         // フルーツは少し大きめに（1.3倍調整済み）
         if (this.currentCategory === 'fruits') {
             if (aspectRatio > 1.2) {
                 // 横長画面（PC等）
-                return Math.min(0.65, Math.max(0.455, minDimension / 923))
+                responsiveMultiplier = Math.min(0.65, Math.max(0.455, minDimension / 923))
             } else {
                 // 縦長画面（モバイル）
                 if (minDimension < 450) {
                     // iPhone系
-                    return Math.min(0.35, Math.max(0.2, minDimension / 1300))
+                    responsiveMultiplier = Math.min(0.35, Math.max(0.2, minDimension / 1300))
                 } else {
                     // iPad系
-                    return Math.min(0.455, Math.max(0.26, minDimension / 1077))
+                    responsiveMultiplier = Math.min(0.455, Math.max(0.26, minDimension / 1077))
                 }
             }
         } else {
-            // 動物のスケール
+            // 動物のレスポンシブ倍率
             if (aspectRatio > 1.2) {
                 // 横長画面（PC等）
-                return Math.min(1.0, Math.max(0.7, minDimension / 600))
+                responsiveMultiplier = Math.min(1.0, Math.max(0.7, minDimension / 600))
             } else {
                 // 縦長画面（モバイル）
                 if (minDimension < 450) {
                     // iPhone系（より小さく）
-                    return Math.min(0.5, Math.max(0.3, minDimension / 900))
+                    responsiveMultiplier = Math.min(0.5, Math.max(0.3, minDimension / 900))
                 } else {
                     // iPad系（現状維持）
-                    return Math.min(0.7, Math.max(0.4, minDimension / 700))
+                    responsiveMultiplier = Math.min(0.7, Math.max(0.4, minDimension / 700))
                 }
             }
         }
+        
+        // ベーススケール × レスポンシブ倍率
+        return baseScale * responsiveMultiplier
     }
 
     private async handleSpriteClick(sprite: Phaser.Physics.Matter.Sprite, entityKey: string): Promise<void> {

@@ -1,11 +1,15 @@
 import { EmojiTextureGenerator } from './EmojiTextureGenerator'
 
+export interface EntityData {
+    audioMap: string
+    baseScale: number
+}
+
 export interface CategoryData {
     category: string
     displayName: string
-    images: string[]
+    entities: Record<string, EntityData>
     sounds: string[]
-    audioMap?: Record<string, string>
     assetPaths?: {
         images?: string
         sounds?: string
@@ -21,6 +25,7 @@ export class AssetLoader {
     private scene: Phaser.Scene
     private categoryData: CategoryData | null = null
     private audioMap: Record<string, string> = {}
+    private baseScales: Record<string, number> = {}
     private assetPaths: Record<string, string> = {}
     private fileExtensions: Record<string, string> = {}
     private loadedImageKeys: string[] = []
@@ -72,7 +77,14 @@ export class AssetLoader {
             
             console.log(`✅ Loaded category: ${this.categoryData.displayName}`)
             
-            this.audioMap = this.categoryData.audioMap || {}
+            // 新しい構造からaudioMapとbaseScalesを抽出
+            this.audioMap = {}
+            this.baseScales = {}
+            
+            Object.entries(this.categoryData.entities).forEach(([entityKey, entityData]) => {
+                this.audioMap[entityKey] = entityData.audioMap
+                this.baseScales[entityKey] = entityData.baseScale
+            })
             this.assetPaths = this.categoryData.assetPaths || {}
             this.fileExtensions = this.categoryData.fileExtensions || {}
             
@@ -92,7 +104,7 @@ export class AssetLoader {
         const imagePath = this.assetPaths.images || 'illust/'
         const imageExt = this.fileExtensions.images || '.png'
         
-        this.categoryData?.images.forEach(imageName => {
+        Object.keys(this.categoryData?.entities || {}).forEach(imageName => {
             // Check if this specific image should use emoji texture
             if (this.categoryData?.emojiMapping?.[imageName]) {
                 const emoji = this.categoryData.emojiMapping[imageName]
@@ -109,7 +121,7 @@ export class AssetLoader {
     private loadEmojiTextures(): void {
         if (!this.categoryData?.emojiMapping) return
         
-        this.categoryData.images.forEach(imageName => {
+        Object.keys(this.categoryData.entities || {}).forEach(imageName => {
             const emoji = this.categoryData!.emojiMapping![imageName]
             if (emoji) {
                 this.emojiGenerator.createEmojiTexture(imageName, emoji)
@@ -133,7 +145,11 @@ export class AssetLoader {
         this.categoryData = {
             category: 'animals',
             displayName: '動物（フォールバック）',
-            images: ['cat-01', 'dog-01', 'elephant-01'],
+            entities: {
+                'cat-01': { audioMap: 'cat', baseScale: 0.4 },
+                'dog-01': { audioMap: 'dog', baseScale: 0.5 },
+                'elephant-01': { audioMap: 'elephant', baseScale: 1.0 }
+            },
             sounds: ['cat', 'dog', 'elephant']
         }
         
@@ -141,6 +157,12 @@ export class AssetLoader {
             'cat-01': 'cat',
             'dog-01': 'dog',
             'elephant-01': 'elephant'
+        }
+        
+        this.baseScales = {
+            'cat-01': 0.4,
+            'dog-01': 0.5,
+            'elephant-01': 1.0
         }
         
         this.assetPaths = { images: 'illust/animals/', sounds: 'voice/animals/' }
@@ -159,7 +181,7 @@ export class AssetLoader {
         
         console.log('✅ All loading attempts completed. Checking assets...')
         
-        this.categoryData.images.forEach(imageName => {
+        Object.keys(this.categoryData.entities || {}).forEach(imageName => {
             const texture = this.scene.textures.get(imageName)
             if (!texture || texture.key === '__MISSING') {
                 console.warn(`❌ Missing texture: ${imageName}`)
@@ -180,9 +202,17 @@ export class AssetLoader {
     getImageKeys(): string[] {
         return this.loadedImageKeys
     }
+    
+    getEntityKeys(): string[] {
+        return Object.keys(this.categoryData?.entities || {})
+    }
 
     getAudioMap(): Record<string, string> {
         return this.audioMap
+    }
+
+    getBaseScales(): Record<string, number> {
+        return this.baseScales
     }
 
     getCategoryData(): CategoryData | null {

@@ -180,14 +180,15 @@ export abstract class BaseGameScene extends Phaser.Scene {
     }
 
     protected spawnRandomEntity() {
-        if (!this.gameData || !this.gameData.images) {
+        if (!this.gameData || !this.gameData.entities) {
             return
         }
 
+        const entityKeys = Object.keys(this.gameData.entities)
         let randomKey: string
         do {
-            randomKey = Phaser.Utils.Array.GetRandom(this.gameData.images)
-        } while (randomKey === this.lastSpawned && this.gameData.images.length > 1)
+            randomKey = Phaser.Utils.Array.GetRandom(entityKeys)
+        } while (randomKey === this.lastSpawned && entityKeys.length > 1)
         
         this.lastSpawned = randomKey
         
