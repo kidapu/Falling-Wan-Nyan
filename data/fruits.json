@@ -2,30 +2,32 @@
   "category": "fruits",
   "displayName": "フルーツ",
   "images": [
-    "apple", "banana", "strawberry", "orange", "grape",
-    "peach", "pear", "watermelon", "kiwi",
-    "pineapple", "lemon", "blueberry", "cherry", "melon"
+    "apple-01", "apple-02", "apple-03", "apple-04",
+    "banana-01", "banana-02", "banana-03",
+    "grape-01", "grape-02", "grape-03",
+    "lemon-01", "lemon-02", "lemon-03",
+    "melon-01", "melon-02", "melon-03", "melon-04", "melon-05",
+    "orange-01", "orange-02",
+    "peach-01", "peach-02",
+    "pineapple-01", "pineapple-02", "pineapple-03",
+    "strawberry-01", "strawberry-02",
+    "watermelon-01", "watermelon-02", "watermelon-03"
   ],
   "sounds": [
-    "apple", "banana", "strawberry", "orange", "grape",
-    "peach", "pear", "watermelon", "kiwi",
-    "pineapple", "lemon", "blueberry", "cherry", "melon"
+    "apple", "banana", "grape", "lemon", "melon",
+    "orange", "peach", "pineapple", "strawberry", "watermelon"
   ],
   "audioMap": {
-    "apple": "apple",
-    "banana": "banana",
-    "strawberry": "strawberry",
-    "orange": "orange",
-    "grape": "grape",
-    "peach": "peach",
-    "pear": "pear",
-    "watermelon": "watermelon",
-    "kiwi": "kiwi",
-    "pineapple": "pineapple",
-    "lemon": "lemon",
-    "blueberry": "blueberry",
-    "cherry": "cherry",
-    "melon": "melon"
+    "apple-01": "apple", "apple-02": "apple", "apple-03": "apple", "apple-04": "apple",
+    "banana-01": "banana", "banana-02": "banana", "banana-03": "banana",
+    "grape-01": "grape", "grape-02": "grape", "grape-03": "grape",
+    "lemon-01": "lemon", "lemon-02": "lemon", "lemon-03": "lemon",
+    "melon-01": "melon", "melon-02": "melon", "melon-03": "melon", "melon-04": "melon", "melon-05": "melon",
+    "orange-01": "orange", "orange-02": "orange",
+    "peach-01": "peach", "peach-02": "peach",
+    "pineapple-01": "pineapple", "pineapple-02": "pineapple", "pineapple-03": "pineapple",
+    "strawberry-01": "strawberry", "strawberry-02": "strawberry",
+    "watermelon-01": "watermelon", "watermelon-02": "watermelon", "watermelon-03": "watermelon"
   },
   "assetPaths": {
     "images": "illust/fruits/",
