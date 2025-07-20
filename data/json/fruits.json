@@ -31,7 +31,7 @@
   },
   "assetPaths": {
     "images": "illust/fruits/",
-    "sounds": "voice/fruits/"
+    "sounds": "audio/fruits/"
   },
   "fileExtensions": {
     "images": ".png",

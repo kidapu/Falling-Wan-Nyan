@@ -41,7 +41,7 @@
   },
   "assetPaths": {
     "images": "illust/animals/",
-    "sounds": "voice/animals/"
+    "sounds": "audio/animals/"
   },
   "fileExtensions": {
     "images": ".png",
