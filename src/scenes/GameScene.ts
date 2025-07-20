@@ -37,7 +37,7 @@ export class GameScene extends Phaser.Scene {
 
     async preload(): Promise<void> {
         // SE音ファイルを読み込み
-        this.load.audio('drop', 'voice/se/drop.mp3')
+        this.load.audio('drop', 'audio/se/drop.mp3')
         
         // 両方のカテゴリのアセットを読み込み
         await Promise.all([
