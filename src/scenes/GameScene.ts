@@ -10,6 +10,7 @@ import { UnifiedSpawner } from '../managers/UnifiedSpawner'
 export class GameScene extends Phaser.Scene {
     private assetLoaderAnimals: AssetLoader
     private assetLoaderFruits: AssetLoader
+    private assetLoaderDailyItems: AssetLoader
     private viewportManager: ViewportManager
     private soundManager: SoundManager
     private growthManager: GrowthManager
@@ -22,6 +23,7 @@ export class GameScene extends Phaser.Scene {
         
         this.assetLoaderAnimals = new AssetLoader(this, 'animals')
         this.assetLoaderFruits = new AssetLoader(this, 'fruits')
+        this.assetLoaderDailyItems = new AssetLoader(this, 'daily_items')
         this.viewportManager = new ViewportManager(this)
         this.soundManager = new SoundManager(this)
         this.growthManager = new GrowthManager(this, { removeOnMaxLevel: true })
@@ -34,7 +36,7 @@ export class GameScene extends Phaser.Scene {
         this.physicsManager = new PhysicsManager(this, this.viewportManager)
         this.categorySwitcher = new CategorySwitcher(this, {
             switchInterval: 60000, // 60秒
-            categories: ['animals', 'fruits'],
+            categories: ['animals', 'fruits', 'daily_items'],
             showCountdown: true,
             warningTime: 10000 // 10秒前警告
         })
@@ -44,21 +46,26 @@ export class GameScene extends Phaser.Scene {
         // SE音ファイルを読み込み
         this.load.audio('drop', 'audio/se/drop.mp3')
         
-        // 両方のカテゴリのアセットを読み込み
+        // 全カテゴリのアセットを読み込み
         await Promise.all([
             this.assetLoaderAnimals.loadAssets(),
-            this.assetLoaderFruits.loadAssets()
+            this.assetLoaderFruits.loadAssets(),
+            this.assetLoaderDailyItems.loadAssets()
         ])
         
         // UnifiedSpawnerにカテゴリデータを設定
         const animalsData = this.assetLoaderAnimals.getCategoryData()
         const fruitsData = this.assetLoaderFruits.getCategoryData()
+        const dailyItemsData = this.assetLoaderDailyItems.getCategoryData()
         
         if (animalsData) {
             this.unifiedSpawner.setCategoryData('animals', animalsData)
         }
         if (fruitsData) {
             this.unifiedSpawner.setCategoryData('fruits', fruitsData)
+        }
+        if (dailyItemsData) {
+            this.unifiedSpawner.setCategoryData('daily_items', dailyItemsData)
         }
         
         // この時点で既にsetCategoryDataによってaudioMapは設定済み

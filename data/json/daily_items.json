@@ -1,0 +1,31 @@
+{
+  "category": "daily_items",
+  "displayName": "日用品",
+  "entities": {
+    "shoes-01": { "audioMap": "shoes", "baseScale": 0.4 },
+    "baby-bottle-01": { "audioMap": "baby-bottle", "baseScale": 0.3 },
+    "ehon-01": { "audioMap": "ehon", "baseScale": 0.5 },
+    "brush-01": { "audioMap": "brush", "baseScale": 0.25 },
+    "cup-01": { "audioMap": "cup", "baseScale": 0.3 },
+    "fork-01": { "audioMap": "fork", "baseScale": 0.2 },
+    "spoon-01": { "audioMap": "spoon", "baseScale": 0.2 },
+    "milk-01": { "audioMap": "milk", "baseScale": 0.35 },
+    "water-01": { "audioMap": "water", "baseScale": 0.3 },
+    "tv-01": { "audioMap": "tv", "baseScale": 0.6 },
+    "remocon-01": { "audioMap": "remocon", "baseScale": 0.25 },
+    "piano-01": { "audioMap": "piano", "baseScale": 0.7 },
+    "clock-01": { "audioMap": "clock", "baseScale": 0.4 }
+  },
+  "sounds": [
+    "shoes", "baby-bottle", "ehon", "brush", "cup", "fork", "spoon",
+    "milk", "water", "tv", "remocon", "piano", "clock"
+  ],
+  "assetPaths": {
+    "images": "illust/daily_items/",
+    "sounds": "audio/daily_items/"
+  },
+  "fileExtensions": {
+    "images": ".png",
+    "sounds": ".wav"
+  }
+}
