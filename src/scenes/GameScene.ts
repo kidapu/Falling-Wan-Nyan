@@ -25,7 +25,12 @@ export class GameScene extends Phaser.Scene {
         this.viewportManager = new ViewportManager(this)
         this.soundManager = new SoundManager(this)
         this.growthManager = new GrowthManager(this, { removeOnMaxLevel: true })
-        this.unifiedSpawner = new UnifiedSpawner(this, this.viewportManager, this.soundManager, this.growthManager)
+        this.unifiedSpawner = new UnifiedSpawner(this, this.viewportManager, this.soundManager, this.growthManager, {
+            useConvexHull: false,          // 凸包機能を有効化する場合はtrueに設定
+            hullSamplingInterval: 5,       // サンプリング間隔（1-20、小さいほど精密）
+            hullAlphaThreshold: 128,       // アルファ閾値（0-255）
+            hullDebugDraw: false          // デバッグ描画を有効化
+        })
         this.physicsManager = new PhysicsManager(this, this.viewportManager)
         this.categorySwitcher = new CategorySwitcher(this, {
             switchInterval: 60000, // 60秒

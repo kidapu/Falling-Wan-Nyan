@@ -3,11 +3,16 @@ import { SoundManager } from './SoundManager'
 import { GrowthManager } from './GrowthManager'
 import { CategoryData } from './AssetLoader'
 import { EmojiTextureGenerator } from './EmojiTextureGenerator'
+import { ConvexHullGenerator, ConvexHullOptions } from './ConvexHullGenerator'
 
 export interface SpawnerConfig {
     spawnInterval: number
     autoRemoveDelay: number
     maxSprites: number
+    useConvexHull?: boolean           // 凸包使用フラグ
+    hullSamplingInterval?: number     // サンプリング間隔（1-20）
+    hullAlphaThreshold?: number       // アルファ閾値（0-255）
+    hullDebugDraw?: boolean          // 凸包デバッグ描画
 }
 
 export class UnifiedSpawner {
@@ -16,6 +21,7 @@ export class UnifiedSpawner {
     private soundManager: SoundManager
     private growthManager: GrowthManager
     private emojiGenerator: EmojiTextureGenerator
+    private convexHullGenerator: ConvexHullGenerator
     
     private gameSprites: Phaser.Physics.Matter.Sprite[] = []
     private spawnTimer: Phaser.Time.TimerEvent | null = null
@@ -37,11 +43,16 @@ export class UnifiedSpawner {
         this.soundManager = soundManager
         this.growthManager = growthManager
         this.emojiGenerator = new EmojiTextureGenerator(scene)
+        this.convexHullGenerator = new ConvexHullGenerator(scene)
         
         this.config = {
             spawnInterval: 1500,
             autoRemoveDelay: 10000,
             maxSprites: 20,
+            useConvexHull: false,
+            hullSamplingInterval: 5,
+            hullAlphaThreshold: 128,
+            hullDebugDraw: false,
             ...config
         }
     }
@@ -182,11 +193,42 @@ export class UnifiedSpawner {
         sprite.setPosition(sprite.x, y)
 
         // 物理プロパティ設定
-        sprite.setBody({
-            type: 'rectangle',
-            width: sprite.width * scale,
-            height: sprite.height * scale
-        })
+        if (this.config.useConvexHull) {
+            // 凸包を使用する場合
+            const vertices = this.convexHullGenerator.generateVerticesFromTexture(entityKey, {
+                samplingInterval: this.config.hullSamplingInterval,
+                alphaThreshold: this.config.hullAlphaThreshold,
+                debugDraw: this.config.hullDebugDraw
+            })
+            
+            if (vertices && vertices.length > 2) {
+                // 頂点をスケールに合わせて調整
+                const scaledVertices = vertices.map(v => ({
+                    x: v.x * scale,
+                    y: v.y * scale
+                }))
+                
+                sprite.setBody({
+                    type: 'fromVertices',
+                    verts: scaledVertices
+                })
+            } else {
+                // 凸包生成に失敗した場合は矩形にフォールバック
+                console.warn(`⚠️ Failed to generate convex hull for ${entityKey}, using rectangle`)
+                sprite.setBody({
+                    type: 'rectangle',
+                    width: sprite.width * scale,
+                    height: sprite.height * scale
+                })
+            }
+        } else {
+            // 通常の矩形ボディ
+            sprite.setBody({
+                type: 'rectangle',
+                width: sprite.width * scale,
+                height: sprite.height * scale
+            })
+        }
 
         sprite.setBounce(0.3)
         sprite.setFriction(0.7)
