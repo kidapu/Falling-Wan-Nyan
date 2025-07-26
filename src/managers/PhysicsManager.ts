@@ -29,7 +29,7 @@ export class PhysicsManager {
             this.scene.matter.world.remove(this.floor)
         }
         
-        this.floor = this.scene.matter.add.rectangle(gameWidth / 2, gameHeight - 20, gameWidth, 40, {
+        this.floor = this.scene.matter.add.rectangle(gameWidth / 2, gameHeight - 30, gameWidth, 40, {
             isStatic: true
         })
         
@@ -37,18 +37,18 @@ export class PhysicsManager {
             this.groundTileSprite.destroy()
         }
         
-        // ground2.pngで地面全体を描画（40px）
+        // ground2.pngで地面全体を描画（50px）
         this.groundTileSprite = this.scene.add.tileSprite(
             gameWidth / 2,
-            gameHeight - 20,
+            gameHeight - 25,
             gameWidth,
-            40,
+            50,
             'ground2'
         )
     }
 
     getFloorY(): number {
-        return this.viewportManager.getGameHeight() - 40
+        return this.viewportManager.getGameHeight() - 50
     }
 
     isFloorBody(body: MatterJS.BodyType): boolean {
