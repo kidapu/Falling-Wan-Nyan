@@ -48,6 +48,7 @@ export class GameScene extends Phaser.Scene {
         
         // 地面のテクスチャを読み込み
         this.load.image('ground', 'data/texture/ground.png')
+        this.load.image('ground2', 'data/texture/ground2.png')
         
         // 全カテゴリのアセットを読み込み
         await Promise.all([

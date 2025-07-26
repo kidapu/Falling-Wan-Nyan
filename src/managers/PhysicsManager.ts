@@ -34,27 +34,18 @@ export class PhysicsManager {
             isStatic: true
         })
         
-        if (this.floorGraphics) {
-            this.floorGraphics.destroy()
-        }
-        
         if (this.groundTileSprite) {
             this.groundTileSprite.destroy()
         }
         
-        // 地面のタイルスプライトを作成
+        // ground2.pngで地面全体を描画（40px）
         this.groundTileSprite = this.scene.add.tileSprite(
             gameWidth / 2,
-            gameHeight - 15,
+            gameHeight - 20,
             gameWidth,
-            30,
-            'ground'
+            40,
+            'ground2'
         )
-        
-        // 草の部分は引き続きgraphicsで描画
-        this.floorGraphics = this.scene.add.graphics()
-        this.floorGraphics.fillStyle(0x228B22)
-        this.floorGraphics.fillRect(0, gameHeight - 40, gameWidth, 10)
     }
 
     getFloorY(): number {
