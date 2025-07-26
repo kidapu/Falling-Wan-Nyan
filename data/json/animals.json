@@ -1,6 +1,7 @@
 {
   "category": "animals",
   "displayName": "動物",
+  "question": "この動物のなまえは？",
   "entities": {
     "bear-01": { "audioMap": "bear", "baseScale": 0.85 },
     "bear-02": { "audioMap": "bear", "baseScale": 0.85 },

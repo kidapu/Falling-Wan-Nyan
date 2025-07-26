@@ -58,15 +58,29 @@ export class GameScene extends Phaser.Scene {
         const fruitsData = this.assetLoaderFruits.getCategoryData()
         const dailyItemsData = this.assetLoaderDailyItems.getCategoryData()
         
+        // カテゴリ表示名と質問を収集
+        const categoryDisplayNames: Record<string, string> = {}
+        const categoryQuestions: Record<string, string> = {}
+        
         if (animalsData) {
             this.unifiedSpawner.setCategoryData('animals', animalsData)
+            categoryDisplayNames['animals'] = animalsData.displayName
+            categoryQuestions['animals'] = (animalsData as any).question
         }
         if (fruitsData) {
             this.unifiedSpawner.setCategoryData('fruits', fruitsData)
+            categoryDisplayNames['fruits'] = fruitsData.displayName
+            categoryQuestions['fruits'] = (fruitsData as any).question
         }
         if (dailyItemsData) {
             this.unifiedSpawner.setCategoryData('daily_items', dailyItemsData)
+            categoryDisplayNames['daily_items'] = dailyItemsData.displayName
+            categoryQuestions['daily_items'] = (dailyItemsData as any).question
         }
+        
+        // CategorySwitcherに表示名と質問を設定
+        this.categorySwitcher.setCategoryDisplayNames(categoryDisplayNames)
+        this.categorySwitcher.setCategoryQuestions(categoryQuestions)
         
         // この時点で既にsetCategoryDataによってaudioMapは設定済み
         // 追加で初期設定は不要

@@ -1,6 +1,7 @@
 {
   "category": "fruits",
   "displayName": "フルーツ",
+  "question": "このフルーツはなに？",
   "entities": {
     "apple-01": { "audioMap": "apple", "baseScale": 0.35 },
     "apple-02": { "audioMap": "apple", "baseScale": 0.35 },

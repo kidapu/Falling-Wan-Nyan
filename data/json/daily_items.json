@@ -1,6 +1,7 @@
 {
   "category": "daily_items",
   "displayName": "日用品",
+  "question": "これはなに？",
   "entities": {
     "shoes-01": { "audioMap": "shoes", "baseScale": 0.4 },
     "baby-bottle-01": { "audioMap": "baby-bottle", "baseScale": 0.3 },

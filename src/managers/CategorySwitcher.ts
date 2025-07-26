@@ -3,6 +3,7 @@ export interface SwitchConfig {
     categories: string[]        // カテゴリ名配列
     showCountdown: boolean      // カウントダウン表示
     warningTime: number         // 警告表示開始時間 (ミリ秒前)
+    categoryDisplayNames?: Record<string, string> // カテゴリ表示名マップ
 }
 
 export interface CategorySwitchEvent {
@@ -21,6 +22,8 @@ export class CategorySwitcher {
     private categoryText: Phaser.GameObjects.Text | null = null
     private remainingTime: number = 0
     private onCategorySwitch: ((event: CategorySwitchEvent) => void) | null = null
+    private categoryDisplayNames: Record<string, string> = {}
+    private categoryQuestions: Record<string, string> = {}
 
     constructor(scene: Phaser.Scene, config: Partial<SwitchConfig> = {}) {
         this.scene = scene
@@ -31,11 +34,20 @@ export class CategorySwitcher {
             warningTime: 10000,         // 10秒前
             ...config
         }
+        this.categoryDisplayNames = config.categoryDisplayNames || {}
         this.remainingTime = this.config.switchInterval
     }
 
     public setOnCategorySwitch(callback: (event: CategorySwitchEvent) => void): void {
         this.onCategorySwitch = callback
+    }
+
+    public setCategoryDisplayNames(displayNames: Record<string, string>): void {
+        this.categoryDisplayNames = { ...this.categoryDisplayNames, ...displayNames }
+    }
+
+    public setCategoryQuestions(questions: Record<string, string>): void {
+        this.categoryQuestions = { ...this.categoryQuestions, ...questions }
     }
 
     public startSwitching(): void {
@@ -159,10 +171,9 @@ export class CategorySwitcher {
     private showSwitchAnimation(fromCategory: string, toCategory: string): void {
         if (!this.categoryText) return
 
-        // カテゴリ名のマッピング
-        const categoryNames: Record<string, string> = {
-            'animals': 'どうぶつのなまえは？',
-            'fruits': 'フルーツのなまえは？'
+        // カテゴリ表示名と質問を取得
+        const getQuestion = (category: string): string => {
+            return this.categoryQuestions[category] || category
         }
 
         // 切り替えアニメーション
@@ -183,7 +194,7 @@ export class CategorySwitcher {
         const switchNotification = this.scene.add.text(
             this.scene.scale.width / 2, 
             this.scene.scale.height / 2, 
-            `${categoryNames[toCategory]}`,
+            `${getQuestion(toCategory)}`,
             {
                 fontSize: '32px',
                 color: '#FFFFFF',
@@ -228,13 +239,9 @@ export class CategorySwitcher {
     private updateCategoryDisplay(): void {
         if (!this.categoryText) return
 
-        const categoryNames: Record<string, string> = {
-            'animals': 'どうぶつのなまえは？',
-            'fruits': 'フルーツのなまえは？'
-        }
-
         const currentCategory = this.getCurrentCategory()
-        this.categoryText.setText(categoryNames[currentCategory] || currentCategory)
+        const question = this.categoryQuestions[currentCategory] || currentCategory
+        this.categoryText.setText(question)
     }
 
     private updateCountdownDisplay(): void {
