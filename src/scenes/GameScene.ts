@@ -47,7 +47,7 @@ export class GameScene extends Phaser.Scene {
         this.load.audio('drop', 'audio/se/drop.mp3')
         
         // 地面のテクスチャを読み込み
-        this.load.image('ground', 'data/texture/ground.png')
+        this.load.image('ground', 'texture/ground.png')
         
         // 全カテゴリのアセットを読み込み
         await Promise.all([
