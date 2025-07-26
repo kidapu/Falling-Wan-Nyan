@@ -5,6 +5,7 @@ export class PhysicsManager {
     private viewportManager: ViewportManager
     private floor: MatterJS.BodyType | null = null
     private floorGraphics: Phaser.GameObjects.Graphics | null = null
+    private groundTileSprite: Phaser.GameObjects.TileSprite | null = null
 
     constructor(scene: Phaser.Scene, viewportManager: ViewportManager) {
         this.scene = scene
@@ -37,11 +38,23 @@ export class PhysicsManager {
             this.floorGraphics.destroy()
         }
         
+        if (this.groundTileSprite) {
+            this.groundTileSprite.destroy()
+        }
+        
+        // 地面のタイルスプライトを作成
+        this.groundTileSprite = this.scene.add.tileSprite(
+            gameWidth / 2,
+            gameHeight - 15,
+            gameWidth,
+            30,
+            'ground'
+        )
+        
+        // 草の部分は引き続きgraphicsで描画
         this.floorGraphics = this.scene.add.graphics()
-        this.floorGraphics.fillStyle(0x8B4513)
-        this.floorGraphics.fillRect(0, gameHeight - 40, gameWidth, 40)
         this.floorGraphics.fillStyle(0x228B22)
-        this.floorGraphics.fillRect(0, gameHeight - 45, gameWidth, 5)
+        this.floorGraphics.fillRect(0, gameHeight - 40, gameWidth, 10)
     }
 
     getFloorY(): number {
