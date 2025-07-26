@@ -4,7 +4,6 @@ export class PhysicsManager {
     private scene: Phaser.Scene
     private viewportManager: ViewportManager
     private floor: MatterJS.BodyType | null = null
-    private floorGraphics: Phaser.GameObjects.Graphics | null = null
     private groundTileSprite: Phaser.GameObjects.TileSprite | null = null
 
     constructor(scene: Phaser.Scene, viewportManager: ViewportManager) {
