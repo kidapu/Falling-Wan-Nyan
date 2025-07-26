@@ -37,13 +37,13 @@ export class PhysicsManager {
             this.groundTileSprite.destroy()
         }
         
-        // ground2.pngで地面全体を描画（50px）
+        // ground.pngで地面全体を描画（50px）
         this.groundTileSprite = this.scene.add.tileSprite(
             gameWidth / 2,
             gameHeight - 25,
             gameWidth,
             50,
-            'ground2'
+            'ground'
         )
     }
 
