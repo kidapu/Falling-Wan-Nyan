@@ -164,7 +164,8 @@ export class GameScene extends Phaser.Scene {
     private updateBackgroundColor(category: string): void {
         const colors = {
             'animals': '#87CEEB',  // 動物: 空色
-            'fruits': '#FFE4E1'    // フルーツ: ピンク系
+            'fruits': '#87CEEB',   // フルーツ: 空色（動物と同じ）
+            'daily_items': '#87CEEB' // 日用品: 空色（動物と同じ）
         }
         
         const targetColor = colors[category as keyof typeof colors] || '#87CEEB'
