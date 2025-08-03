@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>⏬🐶🐱⏬</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -50,10 +53,85 @@
                 box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
             }
         }
+        
+        /* UI要素のスタイル */
+        #ui-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+        }
+        
+        #category-display, #countdown-display, #switch-notification {
+            position: absolute;
+            font-family: 'M PLUS Rounded 1c', sans-serif;
+            font-weight: 500;
+            color: #FFFFFF;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 7px 14px;
+            border-radius: 8px;
+            font-size: 17px;
+            pointer-events: auto;
+        }
+        
+        #category-display {
+            top: 40px;
+            left: 50%;
+            transform: translateX(-50%) scale(0.85);
+        }
+        
+        #countdown-display {
+            top: 40px;
+            right: 20px;
+            transform: scale(0.85);
+            cursor: pointer;
+            user-select: none;
+        }
+        
+        #switch-notification {
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 32px;
+            padding: 10px 20px;
+            display: none;
+            opacity: 0;
+        }
+        
+        @media (min-width: 768px) {
+            #ui-overlay {
+                max-width: 480px;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+        }
+        
+        /* アニメーション */
+        @keyframes pulse {
+            0% { transform: translateX(-50%) scale(0.85); }
+            50% { transform: translateX(-50%) scale(1.275); opacity: 0.8; }
+            100% { transform: translateX(-50%) scale(0.85); }
+        }
+        
+        @keyframes tap-effect {
+            0% { transform: scale(0.85); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(0.85); }
+        }
     </style>
 </head>
 <body>
     <div id="game-canvas"></div>
+    
+    <!-- UI オーバーレイ -->
+    <div id="ui-overlay">
+        <div id="category-display"></div>
+        <div id="countdown-display"></div>
+        <div id="switch-notification"></div>
+    </div>
     
     <script type="module" src="/src/main.ts"></script>
 </body>

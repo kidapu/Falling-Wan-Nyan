@@ -18,8 +18,9 @@ export class CategorySwitcher {
     private currentCategoryIndex: number = 0
     private switchTimer: Phaser.Time.TimerEvent | null = null
     private countdownTimer: Phaser.Time.TimerEvent | null = null
-    private countdownText: Phaser.GameObjects.Text | null = null
-    private categoryText: Phaser.GameObjects.Text | null = null
+    private countdownElement: HTMLElement | null = null
+    private categoryElement: HTMLElement | null = null
+    private switchNotificationElement: HTMLElement | null = null
     private remainingTime: number = 0
     private onCategorySwitch: ((event: CategorySwitchEvent) => void) | null = null
     private categoryDisplayNames: Record<string, string> = {}
@@ -80,30 +81,14 @@ export class CategorySwitcher {
     }
 
     private createUI(): void {
-        const gameWidth = this.scene.scale.width
+        // DOM要素を取得
+        this.categoryElement = document.getElementById('category-display')
+        this.countdownElement = document.getElementById('countdown-display')
+        this.switchNotificationElement = document.getElementById('switch-notification')
         
-        // カテゴリ表示テキスト
-        this.categoryText = this.scene.add.text(gameWidth / 2, 40, '', {
-            fontSize: '20px',
-            color: '#FFFFFF',
-            backgroundColor: 'rgba(0,0,0,0.7)',
-            padding: { x: 14, y: 7 },
-            align: 'center'
-        }).setOrigin(0.5, 0.5).setDepth(1000).setScale(0.85)
-
-        // カウントダウン表示テキスト
-        if (this.config.showCountdown) {
-            this.countdownText = this.scene.add.text(gameWidth - 20, 40, '', {
-                fontSize: '20px',
-                color: '#FFFFFF',
-                backgroundColor: 'rgba(0,0,0,0.7)',
-                padding: { x: 14, y: 7 },
-                align: 'right'
-            }).setOrigin(1, 0.5).setDepth(1000).setScale(0.85)
-            
-            // カウントダウンテキストをタップ可能にする
-            this.countdownText.setInteractive({ useHandCursor: true })
-            this.countdownText.on('pointerdown', () => {
+        // カウントダウン要素にクリックイベントを追加
+        if (this.config.showCountdown && this.countdownElement) {
+            this.countdownElement.addEventListener('click', () => {
                 this.handleCountdownTap()
             })
         }
@@ -112,13 +97,15 @@ export class CategorySwitcher {
     }
 
     private destroyUI(): void {
-        if (this.categoryText) {
-            this.categoryText.destroy()
-            this.categoryText = null
+        // DOM要素は削除せず、内容をクリアするだけ
+        if (this.categoryElement) {
+            this.categoryElement.textContent = ''
         }
-        if (this.countdownText) {
-            this.countdownText.destroy()
-            this.countdownText = null
+        if (this.countdownElement) {
+            this.countdownElement.textContent = ''
+        }
+        if (this.switchNotificationElement) {
+            this.switchNotificationElement.style.display = 'none'
         }
     }
 
@@ -169,61 +156,50 @@ export class CategorySwitcher {
     }
 
     private showSwitchAnimation(fromCategory: string, toCategory: string): void {
-        if (!this.categoryText) return
+        if (!this.categoryElement) return
 
         // カテゴリ表示名と質問を取得
         const getQuestion = (category: string): string => {
             return this.categoryQuestions[category] || category
         }
 
-        // 切り替えアニメーション
-        this.scene.tweens.add({
-            targets: this.categoryText,
-            scaleX: 1.5,
-            scaleY: 1.5,
-            alpha: 0.8,
-            duration: 300,
-            ease: 'Power2.easeOut',
-            yoyo: true,
-            onComplete: () => {
+        // 切り替えアニメーション (CSS animation)
+        this.categoryElement.style.animation = 'none'
+        setTimeout(() => {
+            if (this.categoryElement) {
+                this.categoryElement.style.animation = 'pulse 0.6s ease-out'
                 this.updateCategoryDisplay()
             }
-        })
+        }, 10)
 
         // 短時間の切り替え通知表示
-        const switchNotification = this.scene.add.text(
-            this.scene.scale.width / 2, 
-            this.scene.scale.height / 2, 
-            `${getQuestion(toCategory)}`,
-            {
-                fontSize: '32px',
-                color: '#FFFFFF',
-                backgroundColor: 'rgba(0,0,0,0.8)',
-                padding: { x: 20, y: 10 },
-                align: 'center'
-            }
-        ).setOrigin(0.5, 0.5).setDepth(1001).setAlpha(0)
-
-        // 通知アニメーション
-        this.scene.tweens.add({
-            targets: switchNotification,
-            alpha: 1,
-            duration: 500,
-            ease: 'Power2.easeOut',
-            onComplete: () => {
-                this.scene.time.delayedCall(1500, () => {
-                    this.scene.tweens.add({
-                        targets: switchNotification,
-                        alpha: 0,
-                        duration: 500,
-                        ease: 'Power2.easeIn',
-                        onComplete: () => {
-                            switchNotification.destroy()
+        if (this.switchNotificationElement) {
+            this.switchNotificationElement.textContent = getQuestion(toCategory)
+            this.switchNotificationElement.style.display = 'block'
+            
+            // フェードインアニメーション
+            setTimeout(() => {
+                if (this.switchNotificationElement) {
+                    this.switchNotificationElement.style.opacity = '1'
+                    this.switchNotificationElement.style.transition = 'opacity 0.5s ease-out'
+                }
+            }, 10)
+            
+            // 1.5秒後にフェードアウト
+            setTimeout(() => {
+                if (this.switchNotificationElement) {
+                    this.switchNotificationElement.style.opacity = '0'
+                    this.switchNotificationElement.style.transition = 'opacity 0.5s ease-in'
+                    
+                    // 完全に非表示にする
+                    setTimeout(() => {
+                        if (this.switchNotificationElement) {
+                            this.switchNotificationElement.style.display = 'none'
                         }
-                    })
-                })
-            }
-        })
+                    }, 500)
+                }
+            }, 2000)
+        }
     }
 
     private updateCountdown(): void {
@@ -237,26 +213,26 @@ export class CategorySwitcher {
     }
 
     private updateCategoryDisplay(): void {
-        if (!this.categoryText) return
+        if (!this.categoryElement) return
 
         const currentCategory = this.getCurrentCategory()
         const question = this.categoryQuestions[currentCategory] || currentCategory
-        this.categoryText.setText(question)
+        this.categoryElement.textContent = question
     }
 
     private updateCountdownDisplay(): void {
-        if (!this.countdownText || !this.config.showCountdown) return
+        if (!this.countdownElement || !this.config.showCountdown) return
 
         const seconds = Math.ceil(this.remainingTime / 1000)
         
-        // 警告時間内の場合は色を変更（「切り替えまで」テキストは追加しない）
+        // 警告時間内の場合は色を変更
         if (this.remainingTime <= this.config.warningTime) {
-            this.countdownText.setColor('#FF6B6B')
-            this.countdownText.setText(`${seconds}秒`)
+            this.countdownElement.style.color = '#FF6B6B'
         } else {
-            this.countdownText.setColor('#FFFFFF')
-            this.countdownText.setText(`${seconds}秒`)
+            this.countdownElement.style.color = '#FFFFFF'
         }
+        
+        this.countdownElement.textContent = `${seconds}秒`
     }
 
     private handleCountdownTap(): void {
@@ -268,39 +244,28 @@ export class CategorySwitcher {
     }
     
     private showTapEffect(): void {
-        if (!this.countdownText) return
+        if (!this.countdownElement) return
         
-        // 元のスケールと色を保存
-        const originalScale = this.countdownText.scaleX
-        const originalColor = this.countdownText.style.color
+        // タップエフェクト: CSSアニメーション
+        this.countdownElement.style.animation = 'none'
+        const originalColor = this.countdownElement.style.color
         
-        // タップエフェクト: 短時間の拡大と色変更
-        this.scene.tweens.add({
-            targets: this.countdownText,
-            scaleX: originalScale * 1.2,
-            scaleY: originalScale * 1.2,
-            duration: 100,
-            ease: 'Power2.easeOut',
-            yoyo: true,
-            onComplete: () => {
-                // 元のスケールに戻す
-                this.countdownText?.setScale(originalScale)
+        setTimeout(() => {
+            if (this.countdownElement) {
+                this.countdownElement.style.animation = 'tap-effect 0.2s ease-out'
+                this.countdownElement.style.color = '#FFD700' // ゴールド
+                
+                // 色を元に戻す
+                setTimeout(() => {
+                    if (this.countdownElement) {
+                        this.countdownElement.style.color = originalColor
+                    }
+                }, 200)
             }
-        })
-        
-        // 色の変更エフェクト
-        this.countdownText.setColor('#FFD700') // ゴールド
-        this.scene.time.delayedCall(200, () => {
-            this.countdownText?.setColor(originalColor)
-        })
+        }, 10)
     }
 
     public handleResize(width: number, height: number): void {
-        if (this.categoryText) {
-            this.categoryText.setPosition(width / 2, 40)
-        }
-        if (this.countdownText) {
-            this.countdownText.setPosition(width - 20, 40)
-        }
+        // DOM要素は CSS で自動的に配置されるため、リサイズ処理は不要
     }
 }
