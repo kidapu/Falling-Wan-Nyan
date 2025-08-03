@@ -17,6 +17,7 @@ export class GameScene extends Phaser.Scene {
     private unifiedSpawner: UnifiedSpawner
     private physicsManager: PhysicsManager
     private categorySwitcher: CategorySwitcher
+    private background: Phaser.GameObjects.Image | null = null
 
     constructor() {
         super({ key: 'GameScene' })
@@ -48,6 +49,9 @@ export class GameScene extends Phaser.Scene {
         
         // 地面のテクスチャを読み込み
         this.load.image('ground', 'texture/ground.png')
+        
+        // 背景画像を読み込み
+        this.load.image('background', 'data/texture/background.jpeg')
         
         // 全カテゴリのアセットを読み込み
         await Promise.all([
@@ -91,9 +95,13 @@ export class GameScene extends Phaser.Scene {
     
 
     create(): void {
+        // 背景画像を追加（最背面に配置）
+        this.addBackground()
+        
         this.viewportManager.initialize(() => {
             this.physicsManager.updateFloorPosition()
             this.categorySwitcher.handleResize(this.scale.width, this.scale.height)
+            this.updateBackground()
         })
         
         // SoundManagerを初期化（inputが利用可能になってから）
@@ -159,6 +167,35 @@ export class GameScene extends Phaser.Scene {
         
         // 背景色を変更
         this.updateBackgroundColor(event.to)
+    }
+    
+    private addBackground(): void {
+        const { width, height } = this.scale
+        
+        // 背景画像を追加
+        this.background = this.add.image(width / 2, height / 2, 'background')
+        
+        // 縦がフルサイズになるようにスケール設定
+        const scaleY = height / this.background.height
+        const scaleX = scaleY // アスペクト比を保持
+        
+        this.background.setScale(Math.max(scaleX, scaleY))
+        this.background.setDepth(-100) // 最背面に配置
+    }
+    
+    private updateBackground(): void {
+        if (!this.background) return
+        
+        const { width, height } = this.scale
+        
+        // 背景の位置を中央に
+        this.background.setPosition(width / 2, height / 2)
+        
+        // 縦がフルサイズになるようにスケール再計算
+        const scaleY = height / this.background.height
+        const scaleX = scaleY // アスペクト比を保持
+        
+        this.background.setScale(Math.max(scaleX, scaleY))
     }
 
     private updateBackgroundColor(category: string): void {
