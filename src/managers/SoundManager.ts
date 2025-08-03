@@ -8,7 +8,14 @@ export class SoundManager {
     }
 
     public initialize(): void {
-        this.setupAudioContextHandler()
+        // AudioPermissionManagerから音声許可状態を確認
+        const audioPermissionManager = (window as any).audioPermissionManager
+        if (audioPermissionManager && audioPermissionManager.isAudioInitialized()) {
+            this.audioContextResumed = true
+            console.log('✅ AudioContext already initialized via permission manager')
+        } else {
+            this.setupAudioContextHandler()
+        }
     }
 
     private setupAudioContextHandler(): void {

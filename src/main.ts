@@ -1,5 +1,6 @@
 import Phaser from 'phaser'
 import { GameScene } from './scenes/GameScene'
+import { AudioPermissionManager } from './managers/AudioPermissionManager'
 
 function getInitialViewportHeight(): number {
     return window.visualViewport ? 
@@ -22,27 +23,39 @@ function calculateGameDimensions(): { width: number, height: number } {
     return { width, height }
 }
 
-const dimensions = calculateGameDimensions()
+function startGame(): void {
+    const dimensions = calculateGameDimensions()
 
-const config: Phaser.Types.Core.GameConfig = {
-    type: Phaser.AUTO,
-    width: dimensions.width,
-    height: dimensions.height,
-    parent: 'game-canvas',
-    backgroundColor: '#87CEEB',
-    scale: {
-        mode: Phaser.Scale.RESIZE,
-        autoCenter: Phaser.Scale.CENTER_BOTH
-    },
-    physics: {
-        default: 'matter',
-        matter: {
-            gravity: { x: 0, y: 1 },
-            debug: false,
-            enableSleeping: false
-        }
-    },
-    scene: GameScene
+    const config: Phaser.Types.Core.GameConfig = {
+        type: Phaser.AUTO,
+        width: dimensions.width,
+        height: dimensions.height,
+        parent: 'game-canvas',
+        backgroundColor: '#87CEEB',
+        scale: {
+            mode: Phaser.Scale.RESIZE,
+            autoCenter: Phaser.Scale.CENTER_BOTH
+        },
+        physics: {
+            default: 'matter',
+            matter: {
+                gravity: { x: 0, y: 1 },
+                debug: false,
+                enableSleeping: false
+            }
+        },
+        scene: GameScene
+    }
+
+    new Phaser.Game(config)
 }
 
-new Phaser.Game(config)
+// 音声許可マネージャーを初期化
+const audioPermissionManager = AudioPermissionManager.getInstance()
+// グローバルに参照を保存（SoundManagerから参照するため）
+;(window as any).audioPermissionManager = audioPermissionManager
+
+audioPermissionManager.setupSplashScreen(() => {
+    // 音声許可が得られたらゲームを開始
+    startGame()
+})
