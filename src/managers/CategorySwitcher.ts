@@ -1,3 +1,5 @@
+import { parseRuby, setHtmlContent } from '../utils/RubyParser'
+
 export interface SwitchConfig {
     switchInterval: number      // 切り替え間隔 (ミリ秒)
     categories: string[]        // カテゴリ名配列
@@ -174,7 +176,8 @@ export class CategorySwitcher {
 
         // 短時間の切り替え通知表示
         if (this.switchNotificationElement) {
-            this.switchNotificationElement.textContent = getQuestion(toCategory)
+            const htmlContent = parseRuby(getQuestion(toCategory))
+            setHtmlContent(this.switchNotificationElement, htmlContent)
             this.switchNotificationElement.style.display = 'block'
             
             // フェードインアニメーション
@@ -217,7 +220,10 @@ export class CategorySwitcher {
 
         const currentCategory = this.getCurrentCategory()
         const question = this.categoryQuestions[currentCategory] || currentCategory
-        this.categoryElement.textContent = question
+        
+        // ルビ記法をHTMLに変換して設定
+        const htmlContent = parseRuby(question)
+        setHtmlContent(this.categoryElement, htmlContent)
     }
 
     private updateCountdownDisplay(): void {
