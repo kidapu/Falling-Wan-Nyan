@@ -173,13 +173,20 @@ export class GameScene extends Phaser.Scene {
         const { width, height } = this.scale
         
         // 背景画像を追加
-        this.background = this.add.image(width / 2, height / 2, 'background')
+        this.background = this.add.image(0, 0, 'background')
         
-        // 縦がフルサイズになるようにスケール設定
-        const scaleY = height / this.background.height
-        const scaleX = scaleY // アスペクト比を保持
+        // 横幅を100%にするスケール計算
+        const scaleX = width / this.background.width
+        const scaleY = scaleX // アスペクト比を保持
         
-        this.background.setScale(Math.max(scaleX, scaleY))
+        this.background.setScale(scaleX, scaleY)
+        
+        // 画像の左上を基準点に設定
+        this.background.setOrigin(0, 0)
+        
+        // 画像をページトップに配置
+        this.background.setPosition(0, 0)
+        
         this.background.setDepth(-100) // 最背面に配置
     }
     
@@ -188,14 +195,14 @@ export class GameScene extends Phaser.Scene {
         
         const { width, height } = this.scale
         
-        // 背景の位置を中央に
-        this.background.setPosition(width / 2, height / 2)
+        // 横幅を100%にするスケール再計算
+        const scaleX = width / this.background.width
+        const scaleY = scaleX // アスペクト比を保持
         
-        // 縦がフルサイズになるようにスケール再計算
-        const scaleY = height / this.background.height
-        const scaleX = scaleY // アスペクト比を保持
+        this.background.setScale(scaleX, scaleY)
         
-        this.background.setScale(Math.max(scaleX, scaleY))
+        // 画像をページトップに配置（リサイズ時も維持）
+        this.background.setPosition(0, 0)
     }
 
     private updateBackgroundColor(category: string): void {
